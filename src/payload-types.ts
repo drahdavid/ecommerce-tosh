@@ -63,40 +63,93 @@ export type SupportedTimezones =
 
 export interface Config {
   auth: {
+    customers: CustomerAuthOperations;
     users: UserAuthOperations;
   };
   blocks: {};
   collections: {
-    users: User;
+    products: Product;
+    variants: Variant;
+    categories: Category;
     media: Media;
+    orders: Order;
+    customers: Customer;
+    coupons: Coupon;
+    'shipping-zones': ShippingZone;
+    'payment-events': PaymentEvent;
+    'regret-requests': RegretRequest;
+    pages: Page;
+    'exchange-rate-history': ExchangeRateHistory;
+    users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    products: {
+      variants: 'variants';
+    };
+  };
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    variants: VariantsSelect<false> | VariantsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
+    customers: CustomersSelect<false> | CustomersSelect<true>;
+    coupons: CouponsSelect<false> | CouponsSelect<true>;
+    'shipping-zones': ShippingZonesSelect<false> | ShippingZonesSelect<true>;
+    'payment-events': PaymentEventsSelect<false> | PaymentEventsSelect<true>;
+    'regret-requests': RegretRequestsSelect<false> | RegretRequestsSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    'exchange-rate-history': ExchangeRateHistorySelect<false> | ExchangeRateHistorySelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'store-settings': StoreSetting;
+    'exchange-rate': ExchangeRate;
+    'shipping-settings': ShippingSetting;
+  };
+  globalsSelect: {
+    'store-settings': StoreSettingsSelect<false> | StoreSettingsSelect<true>;
+    'exchange-rate': ExchangeRateSelect<false> | ExchangeRateSelect<true>;
+    'shipping-settings': ShippingSettingsSelect<false> | ShippingSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
   };
-  user: User;
+  user: Customer | User;
   jobs: {
     tasks: unknown;
     workflows: unknown;
+  };
+}
+export interface CustomerAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
   };
 }
 export interface UserAuthOperations {
@@ -119,10 +172,385 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "products".
  */
-export interface User {
-  id: string;
+export interface Product {
+  id: number;
+  title: string;
+  /**
+   * Se genera solo a partir del título si lo dejás vacío.
+   */
+  slug?: string | null;
+  category?: (number | Category)[] | null;
+  featured?: boolean | null;
+  /**
+   * La primera es la portada. Arrastrá para reordenar.
+   */
+  images?: (number | Media)[] | null;
+  shortDescription?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Si es USD, se muestra y cobra en pesos al dólar oficial BNA vigente.
+   */
+  currency: 'ARS' | 'USD';
+  price: number;
+  /**
+   * Opcional, para mostrar descuento.
+   */
+  compareAtPrice?: number | null;
+  /**
+   * Se usa para informar el precio sin impuestos nacionales (Ley 27.743).
+   */
+  taxRate: '21' | '10.5' | '0';
+  /**
+   * Ej.: Talle (S, M, L) y Color (Negro, Blanco). Cada combinación se carga como variante abajo, con su propio SKU y stock.
+   */
+  options?:
+    | {
+        name: string;
+        values: string[];
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Todo producto tiene al menos una variante. Si no usás opciones, se crea una "Única" automáticamente al guardar: cargale el stock.
+   */
+  variants?: {
+    docs?: (number | Variant)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  weightGrams: number;
+  lengthCm: number;
+  widthCm: number;
+  heightCm: number;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  /**
+   * Se genera solo a partir del título si lo dejás vacío.
+   */
+  slug?: string | null;
+  parent?: (number | null) | Category;
+  order?: number | null;
+  image?: (number | null) | Media;
+  description?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * Describe la imagen (accesibilidad y SEO).
+   */
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "variants".
+ */
+export interface Variant {
+  id: number;
+  product: number | Product;
+  /**
+   * Ej.: Talle = M, Color = Negro. Dejalo vacío para productos sin variantes.
+   */
+  options?:
+    | {
+        name: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  sku: string;
+  stock: number;
+  /**
+   * En la moneda del producto. Vacío = precio del producto.
+   */
+  priceOverride?: number | null;
+  image?: (number | null) | Media;
+  active?: boolean | null;
+  label?: string | null;
+  title?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  orderNumber?: string | null;
+  status: 'pending_payment' | 'paid' | 'preparing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+  paymentMethod: 'mercadopago' | 'transfer';
+  needsReview?: ('none' | 'oversold' | 'amount_mismatch' | 'other') | null;
+  adminNotes?: string | null;
+  customer?: (number | null) | Customer;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  dni?: string | null;
+  /**
+   * Para limitar pedidos impagos simultáneos.
+   */
+  clientIp?: string | null;
+  accessToken?: string | null;
+  items?:
+    | {
+        product?: (number | null) | Product;
+        variant?: (number | null) | Variant;
+        title?: string | null;
+        variantTitle?: string | null;
+        sku?: string | null;
+        qty?: number | null;
+        currencyOriginal?: string | null;
+        unitPriceOriginal?: number | null;
+        unitPrice?: number | null;
+        lineTotal?: number | null;
+        weightGrams?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  totals?: {
+    subtotal?: number | null;
+    couponDiscount?: number | null;
+    transferDiscount?: number | null;
+    shipping?: number | null;
+    total?: number | null;
+    vatIncluded?: number | null;
+  };
+  coupon?: {
+    code?: string | null;
+    type?: string | null;
+    value?: number | null;
+  };
+  /**
+   * Congelada al crear el pedido.
+   */
+  exchangeRate?: {
+    rate?: number | null;
+    source?: string | null;
+    fetchedAt?: string | null;
+  };
+  shippingMethod?: {
+    rateId?: string | null;
+    provider?: string | null;
+    service?: string | null;
+    carrier?: string | null;
+    label?: string | null;
+    price?: number | null;
+  };
+  shippingAddress?: {
+    street?: string | null;
+    number?: string | null;
+    floor?: string | null;
+    city?: string | null;
+    province?:
+      | (
+          | 'Buenos Aires'
+          | 'CABA'
+          | 'Catamarca'
+          | 'Chaco'
+          | 'Chubut'
+          | 'Córdoba'
+          | 'Corrientes'
+          | 'Entre Ríos'
+          | 'Formosa'
+          | 'Jujuy'
+          | 'La Pampa'
+          | 'La Rioja'
+          | 'Mendoza'
+          | 'Misiones'
+          | 'Neuquén'
+          | 'Río Negro'
+          | 'Salta'
+          | 'San Juan'
+          | 'San Luis'
+          | 'Santa Cruz'
+          | 'Santa Fe'
+          | 'Santiago del Estero'
+          | 'Tierra del Fuego'
+          | 'Tucumán'
+        )
+      | null;
+    postalCode?: string | null;
+    notes?: string | null;
+  };
+  shipment?: {
+    carrier?: string | null;
+    trackingNumber?: string | null;
+    trackingUrl?: string | null;
+    providerShipmentId?: string | null;
+    labelUrl?: string | null;
+    shippedAt?: string | null;
+  };
+  mp?: {
+    preferenceId?: string | null;
+    paymentId?: string | null;
+    status?: string | null;
+    statusDetail?: string | null;
+    paymentTypeId?: string | null;
+    paymentMethodId?: string | null;
+    installments?: number | null;
+    transactionAmount?: number | null;
+    netReceivedAmount?: number | null;
+    approvedAt?: string | null;
+    initPoint?: string | null;
+  };
+  paidAt?: string | null;
+  reservationExpiresAt?: string | null;
+  stockReleased?: boolean | null;
+  couponReleased?: boolean | null;
+  /**
+   * Facturación electrónica: carga manual en v1.
+   */
+  invoice?: {
+    number?: string | null;
+    cae?: string | null;
+    url?: string | null;
+  };
+  statusHistory?:
+    | {
+        from?: string | null;
+        to?: string | null;
+        at?: string | null;
+        by?: string | null;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers".
+ */
+export interface Customer {
+  id: number;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
+  dni?: string | null;
+  addresses?:
+    | {
+        label?: string | null;
+        street: string;
+        number: string;
+        floor?: string | null;
+        city: string;
+        province:
+          | 'Buenos Aires'
+          | 'CABA'
+          | 'Catamarca'
+          | 'Chaco'
+          | 'Chubut'
+          | 'Córdoba'
+          | 'Corrientes'
+          | 'Entre Ríos'
+          | 'Formosa'
+          | 'Jujuy'
+          | 'La Pampa'
+          | 'La Rioja'
+          | 'Mendoza'
+          | 'Misiones'
+          | 'Neuquén'
+          | 'Río Negro'
+          | 'Salta'
+          | 'San Juan'
+          | 'San Luis'
+          | 'Santa Cruz'
+          | 'Santa Fe'
+          | 'Santiago del Estero'
+          | 'Tierra del Fuego'
+          | 'Tucumán';
+        postalCode: string;
+        isDefault?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  marketingOptIn?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -130,6 +558,224 @@ export interface User {
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  _verified?: boolean | null;
+  _verificationToken?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'customers';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons".
+ */
+export interface Coupon {
+  id: number;
+  code: string;
+  active?: boolean | null;
+  description?: string | null;
+  type: 'percent' | 'fixed';
+  /**
+   * % o pesos según el tipo.
+   */
+  value: number;
+  minSubtotal?: number | null;
+  startsAt?: string | null;
+  expiresAt?: string | null;
+  /**
+   * Vacío = ilimitado.
+   */
+  usageLimit?: number | null;
+  perCustomerLimit?: number | null;
+  usageCount?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Tarifas manuales para "Envío a domicilio". Se busca primero por rango de CP y después por provincia; ante varias coincidencias gana la de mayor prioridad.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shipping-zones".
+ */
+export interface ShippingZone {
+  id: number;
+  name: string;
+  priority?: number | null;
+  active?: boolean | null;
+  provinces?:
+    | (
+        | 'Buenos Aires'
+        | 'CABA'
+        | 'Catamarca'
+        | 'Chaco'
+        | 'Chubut'
+        | 'Córdoba'
+        | 'Corrientes'
+        | 'Entre Ríos'
+        | 'Formosa'
+        | 'Jujuy'
+        | 'La Pampa'
+        | 'La Rioja'
+        | 'Mendoza'
+        | 'Misiones'
+        | 'Neuquén'
+        | 'Río Negro'
+        | 'Salta'
+        | 'San Juan'
+        | 'San Luis'
+        | 'Santa Cruz'
+        | 'Santa Fe'
+        | 'Santiago del Estero'
+        | 'Tierra del Fuego'
+        | 'Tucumán'
+      )[]
+    | null;
+  /**
+   * Opcional. Ej.: AMBA 1600–1899. Usa los 4 dígitos del CP.
+   */
+  postalRanges?:
+    | {
+        from: number;
+        to: number;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Peso facturable = el mayor entre peso real y volumétrico (L×A×H/5000).
+   */
+  weightBrackets: {
+    maxGrams: number;
+    price: number;
+    id?: string | null;
+  }[];
+  extraPerKg?: number | null;
+  freeEligible?: boolean | null;
+  etaDays?: {
+    min?: number | null;
+    max?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payment-events".
+ */
+export interface PaymentEvent {
+  id: number;
+  eventKey: string;
+  mpPaymentId?: string | null;
+  status?: string | null;
+  statusDetail?: string | null;
+  order?: (number | null) | Order;
+  source?: ('webhook' | 'return' | 'reconcile') | null;
+  raw?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "regret-requests".
+ */
+export interface RegretRequest {
+  id: number;
+  code?: string | null;
+  status?: ('received' | 'processing' | 'closed') | null;
+  orderNumber: string;
+  order?: (number | null) | Order;
+  name: string;
+  email: string;
+  phone?: string | null;
+  reason?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  /**
+   * Se genera solo a partir del título si lo dejás vacío.
+   */
+  slug?: string | null;
+  showInFooter?: boolean | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exchange-rate-history".
+ */
+export interface ExchangeRateHistory {
+  id: number;
+  sell?: number | null;
+  buy?: number | null;
+  source?: string | null;
+  apiUpdatedAt?: string | null;
+  accepted?: boolean | null;
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  role: 'admin' | 'staff';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
   sessions?:
@@ -144,29 +790,10 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -183,21 +810,70 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'products';
+        value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'variants';
+        value: number | Variant;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
+      } | null)
+    | ({
+        relationTo: 'customers';
+        value: number | Customer;
+      } | null)
+    | ({
+        relationTo: 'coupons';
+        value: number | Coupon;
+      } | null)
+    | ({
+        relationTo: 'shipping-zones';
+        value: number | ShippingZone;
+      } | null)
+    | ({
+        relationTo: 'payment-events';
+        value: number | PaymentEvent;
+      } | null)
+    | ({
+        relationTo: 'regret-requests';
+        value: number | RegretRequest;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'exchange-rate-history';
+        value: number | ExchangeRateHistory;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'customers';
+        value: number | Customer;
+      }
+    | {
+        relationTo: 'users';
+        value: number | User;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -206,11 +882,16 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  id: number;
+  user:
+    | {
+        relationTo: 'customers';
+        value: number | Customer;
+      }
+    | {
+        relationTo: 'users';
+        value: number | User;
+      };
   key?: string | null;
   value?:
     | {
@@ -229,7 +910,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -237,25 +918,86 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "products_select".
  */
-export interface UsersSelect<T extends boolean = true> {
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
+export interface ProductsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  category?: T;
+  featured?: T;
+  images?: T;
+  shortDescription?: T;
+  description?: T;
+  currency?: T;
+  price?: T;
+  compareAtPrice?: T;
+  taxRate?: T;
+  options?:
     | T
     | {
+        name?: T;
+        values?: T;
         id?: T;
-        createdAt?: T;
-        expiresAt?: T;
       };
+  variants?: T;
+  weightGrams?: T;
+  lengthCm?: T;
+  widthCm?: T;
+  heightCm?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "variants_select".
+ */
+export interface VariantsSelect<T extends boolean = true> {
+  product?: T;
+  options?:
+    | T
+    | {
+        name?: T;
+        value?: T;
+        id?: T;
+      };
+  sku?: T;
+  stock?: T;
+  priceOverride?: T;
+  image?: T;
+  active?: T;
+  label?: T;
+  title?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  parent?: T;
+  order?: T;
+  image?: T;
+  description?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -274,6 +1016,354 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  status?: T;
+  paymentMethod?: T;
+  needsReview?: T;
+  adminNotes?: T;
+  customer?: T;
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  dni?: T;
+  clientIp?: T;
+  accessToken?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        variant?: T;
+        title?: T;
+        variantTitle?: T;
+        sku?: T;
+        qty?: T;
+        currencyOriginal?: T;
+        unitPriceOriginal?: T;
+        unitPrice?: T;
+        lineTotal?: T;
+        weightGrams?: T;
+        id?: T;
+      };
+  totals?:
+    | T
+    | {
+        subtotal?: T;
+        couponDiscount?: T;
+        transferDiscount?: T;
+        shipping?: T;
+        total?: T;
+        vatIncluded?: T;
+      };
+  coupon?:
+    | T
+    | {
+        code?: T;
+        type?: T;
+        value?: T;
+      };
+  exchangeRate?:
+    | T
+    | {
+        rate?: T;
+        source?: T;
+        fetchedAt?: T;
+      };
+  shippingMethod?:
+    | T
+    | {
+        rateId?: T;
+        provider?: T;
+        service?: T;
+        carrier?: T;
+        label?: T;
+        price?: T;
+      };
+  shippingAddress?:
+    | T
+    | {
+        street?: T;
+        number?: T;
+        floor?: T;
+        city?: T;
+        province?: T;
+        postalCode?: T;
+        notes?: T;
+      };
+  shipment?:
+    | T
+    | {
+        carrier?: T;
+        trackingNumber?: T;
+        trackingUrl?: T;
+        providerShipmentId?: T;
+        labelUrl?: T;
+        shippedAt?: T;
+      };
+  mp?:
+    | T
+    | {
+        preferenceId?: T;
+        paymentId?: T;
+        status?: T;
+        statusDetail?: T;
+        paymentTypeId?: T;
+        paymentMethodId?: T;
+        installments?: T;
+        transactionAmount?: T;
+        netReceivedAmount?: T;
+        approvedAt?: T;
+        initPoint?: T;
+      };
+  paidAt?: T;
+  reservationExpiresAt?: T;
+  stockReleased?: T;
+  couponReleased?: T;
+  invoice?:
+    | T
+    | {
+        number?: T;
+        cae?: T;
+        url?: T;
+      };
+  statusHistory?:
+    | T
+    | {
+        from?: T;
+        to?: T;
+        at?: T;
+        by?: T;
+        note?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers_select".
+ */
+export interface CustomersSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  phone?: T;
+  dni?: T;
+  addresses?:
+    | T
+    | {
+        label?: T;
+        street?: T;
+        number?: T;
+        floor?: T;
+        city?: T;
+        province?: T;
+        postalCode?: T;
+        isDefault?: T;
+        id?: T;
+      };
+  marketingOptIn?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  _verified?: T;
+  _verificationToken?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons_select".
+ */
+export interface CouponsSelect<T extends boolean = true> {
+  code?: T;
+  active?: T;
+  description?: T;
+  type?: T;
+  value?: T;
+  minSubtotal?: T;
+  startsAt?: T;
+  expiresAt?: T;
+  usageLimit?: T;
+  perCustomerLimit?: T;
+  usageCount?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shipping-zones_select".
+ */
+export interface ShippingZonesSelect<T extends boolean = true> {
+  name?: T;
+  priority?: T;
+  active?: T;
+  provinces?: T;
+  postalRanges?:
+    | T
+    | {
+        from?: T;
+        to?: T;
+        id?: T;
+      };
+  weightBrackets?:
+    | T
+    | {
+        maxGrams?: T;
+        price?: T;
+        id?: T;
+      };
+  extraPerKg?: T;
+  freeEligible?: T;
+  etaDays?:
+    | T
+    | {
+        min?: T;
+        max?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payment-events_select".
+ */
+export interface PaymentEventsSelect<T extends boolean = true> {
+  eventKey?: T;
+  mpPaymentId?: T;
+  status?: T;
+  statusDetail?: T;
+  order?: T;
+  source?: T;
+  raw?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "regret-requests_select".
+ */
+export interface RegretRequestsSelect<T extends boolean = true> {
+  code?: T;
+  status?: T;
+  orderNumber?: T;
+  order?: T;
+  name?: T;
+  email?: T;
+  phone?: T;
+  reason?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  showInFooter?: T;
+  content?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exchange-rate-history_select".
+ */
+export interface ExchangeRateHistorySelect<T extends boolean = true> {
+  sell?: T;
+  buy?: T;
+  source?: T;
+  apiUpdatedAt?: T;
+  accepted?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -314,6 +1404,275 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "store-settings".
+ */
+export interface StoreSetting {
+  id: number;
+  storeName: string;
+  tagline?: string | null;
+  legalName?: string | null;
+  cuit?: string | null;
+  address?: string | null;
+  contactEmail?: string | null;
+  /**
+   * Formato internacional sin +: 5491112345678
+   */
+  whatsappNumber?: string | null;
+  adminNotificationEmails?: string[] | null;
+  instagram?: string | null;
+  facebook?: string | null;
+  tiktok?: string | null;
+  /**
+   * Obligatorio exhibirlo en el sitio. Se obtiene en ARCA → "Formulario 960 - Data Fiscal".
+   */
+  dataFiscalUrl?: string | null;
+  dataFiscalImage?: (number | null) | Media;
+  /**
+   * Los precios convertidos se redondean hacia arriba a este múltiplo. Ej.: 10 → $12.340.
+   */
+  priceRoundingStep?: number | null;
+  /**
+   * Vacío o 0 = sin envío gratis.
+   */
+  freeShippingThreshold?: number | null;
+  /**
+   * Solo se muestran cuotas SIN interés (las absorbe el comercio en Mercado Pago). Publicitar cuotas con interés obliga a informar CFT y TEA.
+   */
+  installments?: {
+    enabled?: boolean | null;
+    count?: number | null;
+    interestFree?: boolean | null;
+  };
+  mercadoPagoEnabled?: boolean | null;
+  transferEnabled?: boolean | null;
+  transferDiscountPercent?: number | null;
+  bank?: {
+    bankName?: string | null;
+    holder?: string | null;
+    cuit?: string | null;
+    cbu?: string | null;
+    alias?: string | null;
+  };
+  reservationTtlMinutesMP?: number | null;
+  reservationTtlHoursTransfer?: number | null;
+  /**
+   * Evita que alguien bloquee stock armando pedidos que no paga.
+   */
+  maxPendingOrdersPerEmail?: number | null;
+  /**
+   * Más alto que por email: varias personas pueden compartir una conexión.
+   */
+  maxPendingOrdersPerIp?: number | null;
+  ga4Id?: string | null;
+  metaPixelId?: string | null;
+  /**
+   * Ej.: "Envío gratis desde $80.000 · 3 cuotas sin interés"
+   */
+  announcement?: string | null;
+  heroTitle?: string | null;
+  heroSubtitle?: string | null;
+  heroImage?: (number | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exchange-rate".
+ */
+export interface ExchangeRate {
+  id: number;
+  mode: 'auto' | 'manual';
+  manualRate?: number | null;
+  /**
+   * La que se usa para mostrar y cobrar los productos en USD.
+   */
+  effectiveRate?: number | null;
+  autoSell?: number | null;
+  autoBuy?: number | null;
+  apiUpdatedAt?: string | null;
+  checkedAt?: string | null;
+  lastError?: string | null;
+  /**
+   * Si la última consulta exitosa es más vieja, se reintenta al cotizar; si sigue fallando, se bloquea la venta de productos en USD.
+   */
+  maxStalenessHours?: number | null;
+  /**
+   * Un salto mayor entre consultas se rechaza y se avisa (protege ante datos erróneos).
+   */
+  maxDeltaPercent?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shipping-settings".
+ */
+export interface ShippingSetting {
+  id: number;
+  origin?: {
+    street?: string | null;
+    number?: string | null;
+    city?: string | null;
+    province?: string | null;
+    postalCode?: string | null;
+  };
+  pickup?: {
+    enabled?: boolean | null;
+    address?: string | null;
+    hours?: string | null;
+  };
+  /**
+   * Usa las tarifas cargadas en "Zonas de envío".
+   */
+  rateTable?: {
+    enabled?: boolean | null;
+  };
+  /**
+   * Requiere ZIPNOVA_API_KEY / ZIPNOVA_API_SECRET en las variables de entorno.
+   */
+  zipnova?: {
+    enabled?: boolean | null;
+    accountId?: string | null;
+    originId?: string | null;
+    markupPercent?: number | null;
+  };
+  /**
+   * Próximamente. Requiere credenciales MiCorreo (CORREOAR_*).
+   */
+  correoArgentino?: {
+    enabled?: boolean | null;
+  };
+  /**
+   * Próximamente. Requiere credenciales REST de Andreani (ANDREANI_*).
+   */
+  andreani?: {
+    enabled?: boolean | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "store-settings_select".
+ */
+export interface StoreSettingsSelect<T extends boolean = true> {
+  storeName?: T;
+  tagline?: T;
+  legalName?: T;
+  cuit?: T;
+  address?: T;
+  contactEmail?: T;
+  whatsappNumber?: T;
+  adminNotificationEmails?: T;
+  instagram?: T;
+  facebook?: T;
+  tiktok?: T;
+  dataFiscalUrl?: T;
+  dataFiscalImage?: T;
+  priceRoundingStep?: T;
+  freeShippingThreshold?: T;
+  installments?:
+    | T
+    | {
+        enabled?: T;
+        count?: T;
+        interestFree?: T;
+      };
+  mercadoPagoEnabled?: T;
+  transferEnabled?: T;
+  transferDiscountPercent?: T;
+  bank?:
+    | T
+    | {
+        bankName?: T;
+        holder?: T;
+        cuit?: T;
+        cbu?: T;
+        alias?: T;
+      };
+  reservationTtlMinutesMP?: T;
+  reservationTtlHoursTransfer?: T;
+  maxPendingOrdersPerEmail?: T;
+  maxPendingOrdersPerIp?: T;
+  ga4Id?: T;
+  metaPixelId?: T;
+  announcement?: T;
+  heroTitle?: T;
+  heroSubtitle?: T;
+  heroImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exchange-rate_select".
+ */
+export interface ExchangeRateSelect<T extends boolean = true> {
+  mode?: T;
+  manualRate?: T;
+  effectiveRate?: T;
+  autoSell?: T;
+  autoBuy?: T;
+  apiUpdatedAt?: T;
+  checkedAt?: T;
+  lastError?: T;
+  maxStalenessHours?: T;
+  maxDeltaPercent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shipping-settings_select".
+ */
+export interface ShippingSettingsSelect<T extends boolean = true> {
+  origin?:
+    | T
+    | {
+        street?: T;
+        number?: T;
+        city?: T;
+        province?: T;
+        postalCode?: T;
+      };
+  pickup?:
+    | T
+    | {
+        enabled?: T;
+        address?: T;
+        hours?: T;
+      };
+  rateTable?:
+    | T
+    | {
+        enabled?: T;
+      };
+  zipnova?:
+    | T
+    | {
+        enabled?: T;
+        accountId?: T;
+        originId?: T;
+        markupPercent?: T;
+      };
+  correoArgentino?:
+    | T
+    | {
+        enabled?: T;
+      };
+  andreani?:
+    | T
+    | {
+        enabled?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
