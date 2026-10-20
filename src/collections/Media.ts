@@ -1,5 +1,10 @@
 import type { CollectionConfig } from 'payload'
 import { anyone, staff } from '@/access'
+import { safeRevalidate, TAGS } from '@/lib/revalidate'
+
+// Productos, categorías, portada y páginas cachean la URL de sus imágenes: al reemplazar o
+// borrar un archivo, esas URLs dejan de existir.
+const revalidateImageUsers = () => safeRevalidate(TAGS.products, TAGS.categories, TAGS.settings, TAGS.pages)
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -10,6 +15,10 @@ export const Media: CollectionConfig = {
     create: staff,
     update: staff,
     delete: staff,
+  },
+  hooks: {
+    afterChange: [revalidateImageUsers],
+    afterDelete: [revalidateImageUsers],
   },
   fields: [
     {

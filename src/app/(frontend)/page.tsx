@@ -7,6 +7,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { getCategories, getProductCards, getSettings } from '@/lib/data/catalog'
 import { formatMoney, toCents } from '@/lib/money'
 import { mediaUrl } from '@/lib/pricing/context'
+import { cn } from '@/lib/utils'
 
 export default async function HomePage() {
   const [settings, categories, featured, latest] = await Promise.all([
@@ -23,16 +24,19 @@ export default async function HomePage() {
     <>
       <section className="relative overflow-hidden bg-zinc-100">
         {hero?.url ? (
-          <Image src={mediaUrl(hero, 'large') ?? hero.url} alt={hero.alt} fill priority sizes="100vw" className="object-cover" />
+          <>
+            <Image src={mediaUrl(hero, 'large') ?? hero.url} alt={hero.alt} fill priority sizes="100vw" className="object-cover" />
+            {/* A lo ancho de la sección: dentro del contenedor el degradé se cortaba en su borde. */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+          </>
         ) : null}
         <div className={`relative mx-auto flex min-h-[420px] max-w-7xl flex-col justify-center px-4 py-16 ${hero ? 'text-white' : ''}`}>
-          {hero ? <div className="absolute inset-0 -z-0 bg-gradient-to-r from-black/60 to-transparent" /> : null}
           <div className="relative max-w-xl">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{settings.heroTitle || settings.storeName}</h1>
             {settings.heroSubtitle || settings.tagline ? (
               <p className="mt-4 text-lg opacity-90">{settings.heroSubtitle || settings.tagline}</p>
             ) : null}
-            <Link href="/productos" className={`${buttonVariants({ size: 'lg' })} mt-8 ${hero ? 'bg-white !text-zinc-900 hover:bg-zinc-200' : ''}`}>
+            <Link href="/productos" className={cn(buttonVariants({ size: 'lg' }), 'mt-8', hero && 'bg-white text-zinc-900 hover:bg-zinc-200')}>
               Ver productos
             </Link>
           </div>

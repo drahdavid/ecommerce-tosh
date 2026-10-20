@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Media, StoreSetting } from '@/payload-types'
+import { whatsappLink } from '@/lib/whatsapp'
 
 export const Footer = ({ settings, pages }: { settings: StoreSetting; pages: { id: number; title: string; slug?: string | null }[] }) => {
   const qr = settings.dataFiscalImage && typeof settings.dataFiscalImage === 'object' ? (settings.dataFiscalImage as Media) : null
@@ -36,7 +37,7 @@ export const Footer = ({ settings, pages }: { settings: StoreSetting; pages: { i
           <p className="text-sm font-semibold">Contacto</p>
           <ul className="mt-3 space-y-2 text-sm text-zinc-600">
             {settings.contactEmail ? <li><a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a></li> : null}
-            {settings.whatsappNumber ? <li><a href={`https://wa.me/${settings.whatsappNumber}`} target="_blank" rel="noreferrer">WhatsApp</a></li> : null}
+            {settings.whatsappNumber ? <li><a href={whatsappLink(settings.whatsappNumber)} target="_blank" rel="noreferrer">WhatsApp</a></li> : null}
             {settings.address ? <li>{settings.address}</li> : null}
           </ul>
           {/* Res. SC 424/2020: el botón de arrepentimiento debe ser visible y de fácil acceso. */}

@@ -2,13 +2,14 @@
 
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { whatsappLink } from '@/lib/whatsapp'
 
 /** Botón flotante de WhatsApp. En una ficha de producto precarga el mensaje con el link. */
 export const WhatsAppButton = ({ number }: { number: string }) => {
   const pathname = usePathname()
   if (pathname.startsWith('/checkout')) return null
   const isProduct = pathname.startsWith('/productos/')
-  const baseHref = `https://wa.me/${number}?text=${encodeURIComponent('Hola! Tengo una consulta')}`
+  const baseHref = whatsappLink(number, 'Hola! Tengo una consulta')
 
   return (
     <a
@@ -16,7 +17,7 @@ export const WhatsAppButton = ({ number }: { number: string }) => {
       // El link al producto se arma al hacer click: usar `window` durante el render rompe la hidratación.
       onClick={(e) => {
         if (!isProduct) return
-        e.currentTarget.href = `https://wa.me/${number}?text=${encodeURIComponent(`Hola! Tengo una consulta sobre este producto: ${window.location.href}`)}`
+        e.currentTarget.href = whatsappLink(number, `Hola! Tengo una consulta sobre este producto: ${window.location.href}`)
       }}
       target="_blank"
       rel="noreferrer"

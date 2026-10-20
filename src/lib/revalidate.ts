@@ -12,11 +12,15 @@ export const TAGS = {
 /**
  * Invalida tags de cache del storefront. Fuera de Next (seeds, scripts, tests) revalidateTag
  * lanza error porque no hay contexto de request: en ese caso no hay nada que invalidar.
+ *
+ * `expire: 0` en vez de `'max'`: con stale-while-revalidate la primera visita después de un
+ * cambio en el admin mostraría la versión anterior, y si se reemplazó una foto, esa versión
+ * apunta a un archivo que ya no existe.
  */
 export const safeRevalidate = (...tags: string[]) => {
   for (const tag of tags) {
     try {
-      revalidateTag(tag, 'max')
+      revalidateTag(tag, { expire: 0 })
     } catch {
       // sin contexto de Next
     }
