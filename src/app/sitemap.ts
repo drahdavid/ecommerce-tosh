@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { getPayloadClient } from '@/lib/data/catalog'
 
-export const revalidate = 3600
+// Se genera por request (no en el build, que no tiene acceso a la base).
+export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3100'

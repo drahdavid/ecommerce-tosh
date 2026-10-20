@@ -15,6 +15,8 @@ const remotePatterns = [process.env.NEXT_PUBLIC_SERVER_URL, process.env.NEXT_PUB
   })
 
 const nextConfig: NextConfig = {
+  // Imagen Docker mínima (servidor propio). Vercel ignora esta opción.
+  output: 'standalone',
   images: {
     localPatterns: [{ pathname: '/api/media/file/**' }],
     remotePatterns,

@@ -11,6 +11,10 @@ import './styles.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
 
+// Las páginas se renderizan por request (la imagen Docker se construye sin acceso a la base).
+// Las consultas siguen cacheadas con unstable_cache + tags, que se invalidan desde Payload.
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
   const name = settings.storeName || 'Tienda'

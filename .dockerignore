@@ -1,0 +1,15 @@
+# Nunca copiar dependencias locales, builds ni secretos a la imagen
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+media
+test-results
+playwright-report
+blob-report
+coverage
+*.log
+.vscode
+.idea

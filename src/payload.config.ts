@@ -25,6 +25,7 @@ import { Variants } from './collections/Variants'
 import { ExchangeRate } from './globals/ExchangeRate'
 import { ShippingSettings } from './globals/ShippingSettings'
 import { StoreSettings } from './globals/StoreSettings'
+import { migrations } from './migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -65,6 +66,8 @@ export default buildConfig({
       // En serverless cada instancia abre su propio pool: mantenerlo chico (Neon pooled).
       max: Number(process.env.DATABASE_POOL_MAX || 5),
     },
+    // En producción las migraciones pendientes se aplican al iniciar (deploy en contenedor).
+    prodMigrations: migrations,
   }),
   ...(process.env.RESEND_API_KEY
     ? {
