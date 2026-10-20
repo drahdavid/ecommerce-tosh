@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { RegretForm } from '@/components/account/RegretForm'
+import { formatOrderNumber } from '@/lib/orders/stock'
 
 export const metadata: Metadata = {
   title: 'Botón de arrepentimiento',
@@ -15,7 +16,7 @@ export default function RegretPage() {
         celebración del contrato, lo último que ocurra, sin costo ni responsabilidad (art. 34, Ley 24.240 y Res. 424/2020). No
         necesitás estar registrado.
       </p>
-      <RegretForm />
+      <RegretForm exampleOrderNumber={formatOrderNumber(1)} />
     </div>
   )
 }

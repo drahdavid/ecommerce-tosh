@@ -5,7 +5,7 @@ import { submitRegretAction } from '@/app/(frontend)/arrepentimiento/actions'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Textarea } from '@/components/ui/field'
 
-export const RegretForm = () => {
+export const RegretForm = ({ exampleOrderNumber }: { exampleOrderNumber: string }) => {
   const [form, setForm] = useState({ orderNumber: '', email: '', name: '', phone: '', reason: '' })
   const [error, setError] = useState<string | null>(null)
   const [code, setCode] = useState<string | null>(null)
@@ -37,7 +37,7 @@ export const RegretForm = () => {
         })
       }}
     >
-      <Field label="Número de pedido" htmlFor="r-order" hint="Lo encontrás en el email de confirmación (ej.: TOSH-001001).">
+      <Field label="Número de pedido" htmlFor="r-order" hint={`Lo encontrás en el email de confirmación (ej.: ${exampleOrderNumber}).`}>
         <Input id="r-order" required value={form.orderNumber} onChange={set('orderNumber')} />
       </Field>
       <Field label="Email usado en la compra" htmlFor="r-email">
