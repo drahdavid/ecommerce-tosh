@@ -1,12 +1,36 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { whatsappLink } from '@/lib/whatsapp'
 
-/** Botón flotante de WhatsApp. En una ficha de producto precarga el mensaje con el link. */
+/**
+ * Botón flotante de WhatsApp. En una ficha de producto precarga el mensaje con el link.
+ * Se esconde mientras se ve otro link de WhatsApp de la página (marcado con `data-whatsapp-cta`) para no taparlo.
+ */
 export const WhatsAppButton = ({ number }: { number: string }) => {
   const pathname = usePathname()
+  const [ctaVisible, setCtaVisible] = useState(false)
+
+  useEffect(() => {
+    const targets = document.querySelectorAll('[data-whatsapp-cta]')
+    if (!targets.length) return
+    const visible = new Set<Element>()
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) visible.add(entry.target)
+        else visible.delete(entry.target)
+      }
+      setCtaVisible(visible.size > 0)
+    })
+    targets.forEach((t) => observer.observe(t))
+    return () => {
+      observer.disconnect()
+      setCtaVisible(false)
+    }
+  }, [pathname])
+
   if (pathname.startsWith('/checkout')) return null
   const isProduct = pathname.startsWith('/productos/')
   const baseHref = whatsappLink(number, 'Hola! Tengo una consulta')
@@ -22,10 +46,13 @@ export const WhatsAppButton = ({ number }: { number: string }) => {
       target="_blank"
       rel="noreferrer"
       aria-label="Consultanos por WhatsApp"
+      aria-hidden={ctaVisible || undefined}
+      tabIndex={ctaVisible ? -1 : undefined}
       className={cn(
-        'fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-105',
+        'fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition duration-300 hover:scale-105',
         // En mobile la ficha tiene una barra de compra fija abajo: el botón se ubica encima.
         isProduct ? 'bottom-24 sm:bottom-4' : 'bottom-4',
+        ctaVisible && 'pointer-events-none translate-y-4 opacity-0',
       )}
     >
       <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden="true">

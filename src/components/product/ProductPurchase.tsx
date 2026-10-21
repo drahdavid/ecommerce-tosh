@@ -112,7 +112,7 @@ export const ProductPurchase = ({ productId, title, options, variants, images, t
           )}
         </div>
 
-        <div className="sticky bottom-0 z-10 -mx-4 flex gap-3 bg-white p-4 shadow-[0_-8px_24px_rgb(17_26_22/0.08)] sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+        <div data-sticky-buy="" className="sticky bottom-0 z-10 -mx-4 flex gap-3 bg-white p-4 shadow-[0_-8px_24px_rgb(17_26_22/0.08)] sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
           <div className="flex h-12 items-center rounded-full border border-zinc-300 bg-white">
             <button className="flex h-full w-10 items-center justify-center" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Restar uno" disabled={!inStock}>
               <Minus className="h-4 w-4" />

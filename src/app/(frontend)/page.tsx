@@ -81,6 +81,7 @@ export default async function HomePage() {
                   href={whatsapp}
                   target="_blank"
                   rel="noreferrer"
+                  data-whatsapp-cta=""
                   className={cn(
                     buttonVariants({ variant: 'outline', size: 'lg' }),
                     hero ? 'border-white/40 bg-white/10 text-white hover:border-white' : 'border-zinc-900/15 bg-white/70',
@@ -146,7 +147,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-3 pt-12 sm:px-4 sm:pt-16">
         <div className="flex items-end justify-between gap-4 px-1 sm:px-0">
           <h2 className="text-2xl font-extrabold">{featured.cards.length ? 'Destacados' : 'Novedades'}</h2>
-          <Link href="/productos" className="inline-flex items-center gap-1 text-sm font-bold text-brand hover:text-brand-strong">
+          <Link href="/productos" className="-my-2.5 inline-flex h-11 items-center gap-1 text-sm font-bold text-brand hover:text-brand-strong">
             Ver todo
             <ArrowRight className="h-4 w-4" />
           </Link>
@@ -168,6 +169,7 @@ export default async function HomePage() {
               target="_blank"
               rel="noreferrer"
               aria-label="Escribinos por WhatsApp"
+              data-whatsapp-cta=""
               className="flex h-13 w-13 shrink-0 items-center justify-center gap-2 rounded-full bg-zinc-900 font-semibold text-white transition hover:bg-zinc-700 active:scale-[.98] sm:h-12 sm:w-auto sm:px-6"
             >
               <MessageCircle className="h-5 w-5" />

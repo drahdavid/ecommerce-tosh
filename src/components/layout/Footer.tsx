@@ -10,7 +10,9 @@ export const Footer = ({ settings, pages }: { settings: StoreSetting; pages: { i
   const qr = settings.dataFiscalImage && typeof settings.dataFiscalImage === 'object' ? (settings.dataFiscalImage as Media) : null
   return (
     <footer className="mt-16 border-t border-zinc-200/70 bg-white sm:mt-24">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-6 gap-y-10 px-5 py-12 sm:px-4 lg:grid-cols-4">
+      {/* pb extra en mobile: al final de la página el botón flotante de WhatsApp no tapa el texto legal.
+          En la ficha el botón va más alto (encima de la barra de compra), así que ahí hace falta más. */}
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-6 gap-y-10 px-5 pt-12 pb-28 sm:px-4 sm:pb-12 lg:grid-cols-4 [body:has([data-sticky-buy])_&]:pb-44 sm:[body:has([data-sticky-buy])_&]:pb-12">
         <div className="col-span-2 lg:col-span-1">
           <div className="flex items-center gap-2">
             <Image src={LOGO.src} alt="" width={logoWidth(32)} height={32} />

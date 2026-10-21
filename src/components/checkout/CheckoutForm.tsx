@@ -138,7 +138,7 @@ export const CheckoutForm = ({ defaults }: { defaults: CheckoutDefaults }) => {
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2 className="text-lg font-bold">1. Tus datos</h2>
             {!defaults.loggedIn ? (
-              <Link href="/cuenta/ingresar?next=/checkout" className="text-sm font-semibold text-brand underline">
+              <Link href="/cuenta/ingresar?next=/checkout" className="-my-2.5 inline-flex h-11 items-center text-sm font-semibold text-brand underline">
                 ¿Ya tenés cuenta? Ingresá
               </Link>
             ) : null}
