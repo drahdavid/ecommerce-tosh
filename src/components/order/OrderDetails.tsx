@@ -25,7 +25,7 @@ export const StatusBadge = ({ status }: { status: string }) => (
 export const TransferInstructions = ({ order, settings }: { order: Order; settings: StoreSetting }) => {
   const bank = settings.bank
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50 p-5">
+    <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5">
       <h2 className="font-semibold">Datos para la transferencia</h2>
       <p className="mt-1 text-sm text-zinc-700">
         Transferí <strong>{ars(order.totals?.total)}</strong> y envianos el comprobante respondiendo el email de confirmación
@@ -42,7 +42,7 @@ export const TransferInstructions = ({ order, settings }: { order: Order; settin
         ]
           .filter(([, v]) => v)
           .map(([k, v]) => (
-            <div key={k} className="flex items-center justify-between gap-2 rounded bg-white px-3 py-2">
+            <div key={k} className="flex items-center justify-between gap-2 rounded-xl bg-white px-3 py-2">
               <dt className="text-zinc-500">{k}</dt>
               <dd className="flex items-center gap-2 font-medium">
                 {v}
@@ -69,7 +69,7 @@ export const OrderDetails = ({ order }: { order: Order }) => {
         <ol className="grid grid-cols-5 gap-2 text-center text-xs">
           {STEPS.map((s, i) => (
             <li key={s} className="flex flex-col items-center gap-2">
-              <span className={cn('h-1.5 w-full rounded-full', i <= currentStep ? 'bg-zinc-900' : 'bg-zinc-200')} />
+              <span className={cn('h-1.5 w-full rounded-full', i <= currentStep ? 'bg-brand' : 'bg-zinc-200')} />
               <span className={i <= currentStep ? 'font-medium' : 'text-zinc-400'}>{STATUS_LABELS[s]}</span>
             </li>
           ))}
@@ -77,7 +77,7 @@ export const OrderDetails = ({ order }: { order: Order }) => {
       ) : null}
 
       {order.shipment?.trackingNumber ? (
-        <div className="rounded-lg border border-zinc-200 p-5 text-sm">
+        <div className="rounded-3xl bg-white p-5 text-sm shadow-card">
           <p className="font-semibold">Seguimiento</p>
           <p className="mt-1">
             {order.shipment.carrier ? `${order.shipment.carrier} · ` : ''}N° {order.shipment.trackingNumber}
@@ -90,8 +90,8 @@ export const OrderDetails = ({ order }: { order: Order }) => {
         </div>
       ) : null}
 
-      <div className="rounded-lg border border-zinc-200">
-        <ul className="divide-y divide-zinc-200">
+      <div className="rounded-3xl bg-white shadow-card">
+        <ul className="divide-y divide-zinc-100">
           {(order.items ?? []).map((item) => (
             <li key={item.id} className="flex justify-between gap-4 p-4 text-sm">
               <span>
@@ -102,7 +102,7 @@ export const OrderDetails = ({ order }: { order: Order }) => {
             </li>
           ))}
         </ul>
-        <dl className="space-y-2 border-t border-zinc-200 p-4 text-sm">
+        <dl className="space-y-2 border-t border-zinc-100 p-4 text-sm">
           <div className="flex justify-between">
             <dt className="text-zinc-600">Subtotal</dt>
             <dd>{ars(order.totals?.subtotal)}</dd>
@@ -123,7 +123,7 @@ export const OrderDetails = ({ order }: { order: Order }) => {
             <dt className="text-zinc-600">{order.shippingMethod?.label ?? 'Envío'}</dt>
             <dd>{order.totals?.shipping ? ars(order.totals.shipping) : 'Gratis'}</dd>
           </div>
-          <div className="flex justify-between border-t border-zinc-200 pt-2 text-base font-semibold">
+          <div className="flex justify-between border-t border-zinc-200 pt-2 text-lg font-extrabold">
             <dt>Total</dt>
             <dd>{ars(order.totals?.total)}</dd>
           </div>

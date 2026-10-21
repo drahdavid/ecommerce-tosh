@@ -29,44 +29,48 @@ export const ProductListing = async ({ title, description, category, q, sort, pa
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10">
-      <nav className="text-xs text-zinc-500" aria-label="Migas de pan">
-        <Link href="/">Inicio</Link> / <Link href="/productos">Productos</Link>
-        {category ? <> / <span>{category.title}</span></> : null}
+    <div className="mx-auto max-w-7xl px-3 py-8 sm:px-4 sm:py-10">
+      <nav className="px-1 text-xs text-zinc-500 sm:px-0" aria-label="Migas de pan">
+        <Link href="/" className="hover:text-brand">Inicio</Link> / <Link href="/productos" className="hover:text-brand">Productos</Link>
+        {category ? <> / <span className="text-zinc-700">{category.title}</span></> : null}
       </nav>
-      <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+      <div className="mt-3 flex flex-wrap items-end justify-between gap-4 px-1 sm:px-0">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">{q ? `Resultados para “${q}”` : title}</h1>
+          <h1 className="text-3xl font-extrabold sm:text-4xl">{q ? `Resultados para “${q}”` : title}</h1>
           {description ? <p className="mt-2 max-w-2xl text-zinc-600">{description}</p> : null}
           <p className="mt-1 text-sm text-zinc-500">{result.totalDocs} productos</p>
         </div>
         <form className="flex items-center gap-2" action={basePath}>
           {q ? <input type="hidden" name="q" value={q} /> : null}
-          <label htmlFor="sort" className="text-sm text-zinc-600">
+          <label htmlFor="sort" className="text-sm font-semibold text-zinc-600">
             Ordenar
           </label>
-          <select id="sort" name="sort" defaultValue={sort ?? 'recientes'} className="h-9 rounded-md border border-zinc-300 px-2 text-sm">
+          <select id="sort" name="sort" defaultValue={sort ?? 'recientes'} className="h-10 rounded-full border border-zinc-300 bg-white pr-8 pl-4 text-sm font-medium">
             {SORT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
             ))}
           </select>
-          <button className="h-9 rounded-md border border-zinc-300 px-3 text-sm">Aplicar</button>
+          <button className="h-10 rounded-full bg-zinc-900 px-4 text-sm font-semibold text-white transition hover:bg-zinc-700">Aplicar</button>
         </form>
       </div>
 
       {subcategories.length ? (
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="no-scrollbar -mx-3 mt-6 flex gap-2 overflow-x-auto px-3 sm:mx-0 sm:flex-wrap sm:px-0">
           {subcategories.map((c) => (
-            <Link key={c.id} href={`/categoria/${c.slug}`} className="rounded-full border border-zinc-300 px-4 py-1.5 text-sm hover:border-zinc-900">
+            <Link
+              key={c.id}
+              href={`/categoria/${c.slug}`}
+              className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-semibold shadow-card transition hover:bg-zinc-900 hover:text-white"
+            >
               {c.title}
             </Link>
           ))}
         </div>
       ) : null}
 
-      <div className="mt-8">
+      <div className="mt-6 sm:mt-8">
         {result.cards.length ? (
           <ProductGrid products={result.cards} />
         ) : (
@@ -75,13 +79,16 @@ export const ProductListing = async ({ title, description, category, q, sort, pa
       </div>
 
       {result.totalPages > 1 ? (
-        <nav className="mt-12 flex justify-center gap-2" aria-label="Paginación">
+        <nav className="mt-12 flex flex-wrap justify-center gap-2" aria-label="Paginación">
           {Array.from({ length: result.totalPages }, (_, i) => i + 1).map((n) => (
             <Link
               key={n}
               href={href({ page: n })}
               aria-current={n === result.page ? 'page' : undefined}
-              className={cn('flex h-9 w-9 items-center justify-center rounded-md border text-sm', n === result.page ? 'border-zinc-900 bg-zinc-900 text-white' : 'border-zinc-300')}
+              className={cn(
+                'flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition',
+                n === result.page ? 'bg-zinc-900 text-white' : 'bg-white shadow-card hover:bg-zinc-100',
+              )}
             >
               {n}
             </Link>

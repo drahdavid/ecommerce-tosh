@@ -57,7 +57,7 @@ export const ProfileForm = ({ initial }: { initial: Profile }) => {
 
       <div className="space-y-4">
         {profile.addresses.map((a, i) => (
-          <div key={i} className="grid gap-3 rounded-lg border border-zinc-200 p-4 sm:grid-cols-6">
+          <div key={i} className="grid gap-3 rounded-3xl bg-white p-4 shadow-card sm:grid-cols-6 sm:p-5">
             <Field label="Etiqueta" htmlFor={`a-label-${i}`} className="sm:col-span-2">
               <Input id={`a-label-${i}`} placeholder="Casa" value={a.label} onChange={(e) => setAddr(i, 'label', e.target.value)} />
             </Field>

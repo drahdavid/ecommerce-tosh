@@ -20,7 +20,7 @@ export default async function CheckoutPage() {
   }
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">Finalizar compra</h1>
+      <h1 className="text-3xl font-extrabold">Finalizar compra</h1>
       <CheckoutForm defaults={defaults} />
     </div>
   )

@@ -59,7 +59,7 @@ export const AuthForms = ({ next }: { next: string }) => {
   if (registered) {
     return (
       <div className="text-center">
-        <h1 className="text-2xl font-semibold">Revisá tu email</h1>
+        <h1 className="text-2xl font-extrabold">Revisá tu email</h1>
         <p className="mt-3 text-zinc-600">
           Te enviamos un link a <strong>{email}</strong> para confirmar tu cuenta. Después vas a poder ingresar.
         </p>

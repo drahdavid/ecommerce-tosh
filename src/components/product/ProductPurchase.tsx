@@ -59,18 +59,18 @@ export const ProductPurchase = ({ productId, title, options, variants, images, t
   }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2">
+    <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
       <Gallery images={images} activeUrl={variant?.imageUrl} />
       <div className="flex flex-col gap-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
+          <h1 className="text-2xl font-extrabold sm:text-4xl">{title}</h1>
           {variant?.sku ? <p className="mt-1 text-xs text-zinc-400">SKU {variant.sku}</p> : null}
         </div>
         <PriceBlock price={price} transferDiscountPercent={transferDiscountPercent} />
 
         {options.map((o) => (
           <fieldset key={o.name}>
-            <legend className="mb-2 text-sm font-medium">
+            <legend className="mb-2 text-sm font-semibold">
               {o.name}: <span className="font-normal text-zinc-600">{selected[o.name] ?? 'Elegí una opción'}</span>
             </legend>
             <div className="flex flex-wrap gap-2">
@@ -87,8 +87,8 @@ export const ProductPurchase = ({ productId, title, options, variants, images, t
                     }}
                     aria-pressed={active}
                     className={cn(
-                      'min-w-12 rounded-md border px-4 py-2 text-sm',
-                      active ? 'border-zinc-900 bg-zinc-900 text-white' : 'border-zinc-300 hover:border-zinc-900',
+                      'h-11 min-w-12 rounded-full border px-4 text-sm font-semibold transition',
+                      active ? 'border-zinc-900 bg-zinc-900 text-white' : 'border-zinc-300 bg-white hover:border-zinc-900',
                       !available && !active && 'text-zinc-400 line-through',
                     )}
                   >
@@ -112,8 +112,8 @@ export const ProductPurchase = ({ productId, title, options, variants, images, t
           )}
         </div>
 
-        <div className="sticky bottom-0 z-10 -mx-4 flex gap-3 border-t border-zinc-200 bg-white p-4 sm:static sm:mx-0 sm:border-0 sm:p-0">
-          <div className="flex h-12 items-center rounded-md border border-zinc-300">
+        <div className="sticky bottom-0 z-10 -mx-4 flex gap-3 bg-white p-4 shadow-[0_-8px_24px_rgb(17_26_22/0.08)] sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+          <div className="flex h-12 items-center rounded-full border border-zinc-300 bg-white">
             <button className="flex h-full w-10 items-center justify-center" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Restar uno" disabled={!inStock}>
               <Minus className="h-4 w-4" />
             </button>

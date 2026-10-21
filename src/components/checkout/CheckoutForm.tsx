@@ -29,6 +29,11 @@ export type CheckoutDefaults = {
 
 const emptyAddress: Address = { street: '', number: '', floor: '', city: '', province: '', postalCode: '', notes: '' }
 
+const sectionClass = 'rounded-3xl bg-white p-5 shadow-card sm:p-6'
+const optionClass = 'flex cursor-pointer gap-3 rounded-2xl border p-4 transition'
+const optionActive = 'border-brand bg-brand-soft/50 ring-1 ring-brand'
+const optionIdle = 'border-zinc-300 hover:border-zinc-400'
+
 export const CheckoutForm = ({ defaults }: { defaults: CheckoutDefaults }) => {
   const { lines, ready, couponCode, clear } = useCart()
   const [contact, setContact] = useState({ email: defaults.email, firstName: defaults.firstName, lastName: defaults.lastName, phone: defaults.phone, dni: defaults.dni })
@@ -70,7 +75,7 @@ export const CheckoutForm = ({ defaults }: { defaults: CheckoutDefaults }) => {
     }
   }, [quote])
 
-  if (!ready) return <div className="mt-10 h-64 animate-pulse rounded-lg bg-zinc-100" />
+  if (!ready) return <div className="mt-10 h-64 animate-pulse rounded-3xl bg-white" />
   if (lines.length === 0) {
     return (
       <div className="py-20 text-center">
@@ -115,25 +120,25 @@ export const CheckoutForm = ({ defaults }: { defaults: CheckoutDefaults }) => {
 
   return (
     <form
-      className="mt-8 grid gap-10 lg:grid-cols-[1fr_400px]"
+      className="mt-6 grid gap-4 sm:mt-8 lg:grid-cols-[1fr_400px] lg:gap-6"
       onSubmit={(e) => {
         e.preventDefault()
         submit()
       }}
       noValidate
     >
-      <div className="space-y-10">
+      <div className="space-y-4">
         {formError ? (
-          <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">
             {formError}
           </div>
         ) : null}
 
-        <section>
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-lg font-semibold">1. Tus datos</h2>
+        <section className={sectionClass}>
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 className="text-lg font-bold">1. Tus datos</h2>
             {!defaults.loggedIn ? (
-              <Link href="/cuenta/ingresar?next=/checkout" className="text-sm underline">
+              <Link href="/cuenta/ingresar?next=/checkout" className="text-sm font-semibold text-brand underline">
                 ¿Ya tenés cuenta? Ingresá
               </Link>
             ) : null}
@@ -157,8 +162,8 @@ export const CheckoutForm = ({ defaults }: { defaults: CheckoutDefaults }) => {
           </div>
         </section>
 
-        <section>
-          <h2 className="text-lg font-semibold">2. Entrega</h2>
+        <section className={sectionClass}>
+          <h2 className="text-lg font-bold">2. Entrega</h2>
           <p className="mt-1 text-sm text-zinc-600">Ingresá tu código postal y provincia para ver las opciones de envío.</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Field label="Código postal" htmlFor="postalCode" error={err('address.postalCode')}>
@@ -186,14 +191,14 @@ export const CheckoutForm = ({ defaults }: { defaults: CheckoutDefaults }) => {
                 return (
                   <label
                     key={r.id}
-                    className={cn('flex cursor-pointer items-center gap-3 rounded-md border p-4', rateId === r.id ? 'border-zinc-900 ring-1 ring-zinc-900' : 'border-zinc-300')}
+                    className={cn(optionClass, 'items-center', rateId === r.id ? optionActive : optionIdle)}
                   >
                     <input type="radio" name="shippingRate" value={r.id} checked={rateId === r.id} onChange={() => setRateId(r.id)} />
                     <span className="flex-1">
                       <span className="block text-sm font-medium">{r.label}</span>
                       {r.etaDays ? <span className="block text-xs text-zinc-500">Llega en {r.etaDays.min}–{r.etaDays.max} días hábiles</span> : null}
                     </span>
-                    <span className="text-sm font-medium">{isFree ? 'Gratis' : formatMoney(r.priceCents)}</span>
+                    <span className="text-sm font-bold">{isFree ? 'Gratis' : formatMoney(r.priceCents)}</span>
                   </label>
                 )
               })
@@ -222,12 +227,12 @@ export const CheckoutForm = ({ defaults }: { defaults: CheckoutDefaults }) => {
           ) : null}
         </section>
 
-        <section>
-          <h2 className="text-lg font-semibold">3. Pago</h2>
+        <section className={sectionClass}>
+          <h2 className="text-lg font-bold">3. Pago</h2>
           <fieldset className="mt-4 space-y-3">
             <legend className="sr-only">Medio de pago</legend>
             {data?.paymentMethods.mercadopago !== false ? (
-              <label className={cn('flex cursor-pointer items-start gap-3 rounded-md border p-4', paymentMethod === 'mercadopago' ? 'border-zinc-900 ring-1 ring-zinc-900' : 'border-zinc-300')}>
+              <label className={cn(optionClass, 'items-start', paymentMethod === 'mercadopago' ? optionActive : optionIdle)}>
                 <input type="radio" name="payment" className="mt-1" checked={paymentMethod === 'mercadopago'} onChange={() => setPaymentMethod('mercadopago')} />
                 <span>
                   <span className="block text-sm font-medium">Mercado Pago</span>
@@ -236,13 +241,13 @@ export const CheckoutForm = ({ defaults }: { defaults: CheckoutDefaults }) => {
               </label>
             ) : null}
             {data?.paymentMethods.transfer ? (
-              <label className={cn('flex cursor-pointer items-start gap-3 rounded-md border p-4', paymentMethod === 'transfer' ? 'border-zinc-900 ring-1 ring-zinc-900' : 'border-zinc-300')}>
+              <label className={cn(optionClass, 'items-start', paymentMethod === 'transfer' ? optionActive : optionIdle)}>
                 <input type="radio" name="payment" className="mt-1" checked={paymentMethod === 'transfer'} onChange={() => setPaymentMethod('transfer')} />
                 <span>
                   <span className="block text-sm font-medium">
                     Transferencia bancaria
                     {data.paymentMethods.transferDiscountPercent ? (
-                      <span className="ml-2 rounded bg-success/10 px-1.5 py-0.5 text-xs text-success">{data.paymentMethods.transferDiscountPercent}% OFF</span>
+                      <span className="ml-2 rounded-full bg-lime px-2 py-0.5 text-xs font-extrabold">{data.paymentMethods.transferDiscountPercent}% OFF</span>
                     ) : null}
                   </span>
                   <span className="block text-xs text-zinc-500">Te mostramos los datos al confirmar y te los enviamos por email.</span>
@@ -253,8 +258,8 @@ export const CheckoutForm = ({ defaults }: { defaults: CheckoutDefaults }) => {
         </section>
       </div>
 
-      <aside className="h-fit space-y-5 rounded-lg border border-zinc-200 p-6 lg:sticky lg:top-24">
-        <h2 className="text-lg font-semibold">Resumen</h2>
+      <aside className="h-fit space-y-5 rounded-3xl bg-white p-5 shadow-card sm:p-6 lg:sticky lg:top-24">
+        <h2 className="text-lg font-bold">Resumen</h2>
         {quote ? (
           <>
             <ul className="space-y-2 text-sm">
@@ -271,7 +276,7 @@ export const CheckoutForm = ({ defaults }: { defaults: CheckoutDefaults }) => {
             <Totals quote={quote} showShipping />
           </>
         ) : (
-          <div className="h-40 animate-pulse rounded bg-zinc-100" />
+          <div className="h-40 animate-pulse rounded-2xl bg-zinc-100" />
         )}
         {blocking.length && data?.message ? <p className="text-sm text-red-600">{data.message}</p> : null}
 

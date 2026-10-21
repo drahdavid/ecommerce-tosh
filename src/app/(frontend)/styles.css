@@ -1,14 +1,44 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --color-brand: oklch(0.21 0.006 285.885);
-  --color-brand-foreground: oklch(0.985 0 0);
-  --color-accent: oklch(0.646 0.222 41.116);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  /* Neutros con un toque verde (reemplazan el zinc de Tailwind en toda la tienda). zinc-900 es la tinta. */
+  --color-zinc-50: #f6f7f2;
+  --color-zinc-100: #eef0ea;
+  --color-zinc-200: #e2e6df;
+  --color-zinc-300: #cdd3cb;
+  --color-zinc-400: #a0a89f;
+  --color-zinc-500: #646d67;
+  --color-zinc-600: #525a55;
+  --color-zinc-700: #3b4340;
+  --color-zinc-800: #262d2a;
+  --color-zinc-900: #111a16;
+  --color-zinc-950: #0a100d;
+
+  /* Turquesa del logo (#00908C). Para texto y botones se usa la versión más oscura, que pasa AA. */
+  --color-brand: #007a76;
+  --color-brand-strong: #005f5c;
+  --color-brand-logo: #00908c;
+  --color-brand-soft: #ddf3f1;
+  /* Lima: ofertas y acentos. Siempre con texto en tinta encima. */
+  --color-lime: #d7f25c;
+  --color-lime-strong: #c8e63f;
+  --color-lime-soft: #f1fbcb;
+
+  --color-accent: #c2410c;
   --color-success: oklch(0.527 0.154 150.069);
-  --color-muted: oklch(0.552 0.016 285.938);
-  --color-border: oklch(0.92 0.004 286.32);
-  --color-surface: oklch(0.985 0 0);
+
+  --shadow-card: 0 1px 2px rgb(17 26 22 / 0.04), 0 8px 24px rgb(17 26 22 / 0.05);
+  --shadow-card-hover: 0 2px 4px rgb(17 26 22 / 0.05), 0 16px 32px rgb(17 26 22 / 0.09);
+}
+
+/* Filas que se deslizan de costado en mobile (categorías, chips). */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
@@ -17,10 +47,29 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-white text-zinc-900;
+    @apply bg-zinc-50 text-zinc-900;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply tracking-tight;
+    text-wrap: balance;
+  }
+  input[type='radio'],
+  input[type='checkbox'] {
+    accent-color: var(--color-brand);
   }
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-zinc-900;
+    @apply outline-2 outline-offset-2 outline-brand;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -29,10 +78,10 @@
   @apply text-zinc-700 leading-relaxed;
 }
 .prose-content h2 {
-  @apply mt-8 mb-3 text-xl font-semibold text-zinc-900;
+  @apply mt-8 mb-3 text-xl font-bold text-zinc-900;
 }
 .prose-content h3 {
-  @apply mt-6 mb-2 text-lg font-semibold text-zinc-900;
+  @apply mt-6 mb-2 text-lg font-bold text-zinc-900;
 }
 .prose-content p {
   @apply my-3;
@@ -44,5 +93,5 @@
   @apply my-3 list-decimal pl-6;
 }
 .prose-content a {
-  @apply underline underline-offset-2;
+  @apply text-brand underline underline-offset-2;
 }

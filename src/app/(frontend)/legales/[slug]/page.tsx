@@ -15,7 +15,7 @@ export default async function LegalPage({ params }: { params: Params }) {
   if (!page) notFound()
   return (
     <article className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">{page.title}</h1>
+      <h1 className="text-3xl font-extrabold">{page.title}</h1>
       {page.content ? <RichText data={page.content} className="prose-content mt-6" /> : null}
     </article>
   )

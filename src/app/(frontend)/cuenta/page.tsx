@@ -32,7 +32,7 @@ export default async function AccountPage() {
     <div className="mx-auto max-w-4xl px-4 py-12">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Hola{customer.firstName ? `, ${customer.firstName}` : ''}</h1>
+          <h1 className="text-3xl font-extrabold">Hola{customer.firstName ? `, ${customer.firstName}` : ''}</h1>
           <p className="mt-1 text-sm text-zinc-500">{customer.email}</p>
         </div>
         <LogoutButton />
@@ -41,7 +41,7 @@ export default async function AccountPage() {
       <section className="mt-10">
         <h2 className="text-lg font-semibold">Mis pedidos</h2>
         {orders.length ? (
-          <ul className="mt-4 divide-y divide-zinc-200 rounded-lg border border-zinc-200">
+          <ul className="mt-4 divide-y divide-zinc-100 overflow-hidden rounded-3xl bg-white shadow-card">
             {orders.map((o) => (
               <li key={o.id}>
                 <Link href={`/pedido/${o.orderNumber}`} className="flex flex-wrap items-center justify-between gap-3 p-4 hover:bg-zinc-50">

@@ -17,7 +17,7 @@ export default async function VerifyPage({ searchParams }: { searchParams: Searc
   }
   return (
     <div className="mx-auto max-w-md px-4 py-16 text-center">
-      <h1 className="text-2xl font-semibold">{ok ? '¡Email confirmado!' : 'El link no es válido'}</h1>
+      <h1 className="text-2xl font-extrabold">{ok ? '¡Email confirmado!' : 'El link no es válido'}</h1>
       <p className="mt-3 text-zinc-600">{ok ? 'Ya podés ingresar a tu cuenta.' : 'Puede que ya lo hayas usado o que haya vencido.'}</p>
       <Link href="/cuenta/ingresar" className={`${buttonVariants()} mt-8`}>
         Ingresar

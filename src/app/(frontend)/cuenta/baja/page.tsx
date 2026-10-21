@@ -12,7 +12,7 @@ export default async function UnsubscribePage() {
   const [customer, settings] = await Promise.all([getCurrentCustomer(), getSettings()])
   return (
     <div className="mx-auto max-w-xl px-4 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">Botón de baja</h1>
+      <h1 className="text-3xl font-extrabold">Botón de baja</h1>
       {customer ? (
         <>
           <p className="mt-4 text-zinc-700">

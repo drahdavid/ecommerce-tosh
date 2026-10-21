@@ -30,7 +30,7 @@ export default async function OrderPage({ params, searchParams }: { params: Para
         </div>
       ) : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight">Pedido {order.orderNumber}</h1>
+        <h1 className="text-2xl font-extrabold">Pedido {order.orderNumber}</h1>
         <StatusBadge status={order.status} />
       </div>
       <p className="mt-1 text-sm text-zinc-500">

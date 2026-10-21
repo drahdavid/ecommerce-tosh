@@ -44,7 +44,7 @@ export const PasswordRecovery = ({ token }: { token: string | null }) => {
   if (done) {
     return (
       <div className="text-center">
-        <h1 className="text-2xl font-semibold">{token ? 'Contraseña actualizada' : 'Revisá tu email'}</h1>
+        <h1 className="text-2xl font-extrabold">{token ? 'Contraseña actualizada' : 'Revisá tu email'}</h1>
         <p className="mt-3 text-zinc-600">
           {token ? 'Ya podés usar tu nueva contraseña.' : 'Si hay una cuenta con ese email, te enviamos un link para elegir una nueva contraseña.'}
         </p>
@@ -57,7 +57,7 @@ export const PasswordRecovery = ({ token }: { token: string | null }) => {
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <h1 className="text-2xl font-semibold">{token ? 'Elegí una nueva contraseña' : 'Recuperar contraseña'}</h1>
+      <h1 className="text-2xl font-extrabold">{token ? 'Elegí una nueva contraseña' : 'Recuperar contraseña'}</h1>
       <Field label={token ? 'Nueva contraseña' : 'Email'} htmlFor="value">
         <Input
           id="value"

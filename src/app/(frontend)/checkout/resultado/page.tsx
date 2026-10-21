@@ -45,7 +45,7 @@ export default async function CheckoutResultPage({ searchParams }: { searchParam
         ) : (
           <Clock className="h-14 w-14 text-amber-500" />
         )}
-        <h1 className="mt-4 text-2xl font-semibold tracking-tight">
+        <h1 className="mt-4 text-2xl font-extrabold">
           {paid
             ? '¡Gracias por tu compra!'
             : order.status === 'cancelled'

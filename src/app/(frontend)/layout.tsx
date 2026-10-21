@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import type { ReactNode } from 'react'
 import { CartProvider } from '@/components/cart/CartProvider'
 import { Analytics } from '@/components/layout/Analytics'
@@ -9,7 +9,7 @@ import { WhatsAppButton } from '@/components/layout/WhatsAppButton'
 import { getCategories, getFooterPages, getSettings } from '@/lib/data/catalog'
 import './styles.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-jakarta', display: 'swap' })
 
 // Las páginas se renderizan por request (la imagen Docker se construye sin acceso a la base).
 // Las consultas siguen cacheadas con unstable_cache + tags, que se invalidan desde Payload.
@@ -29,13 +29,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function FrontendLayout({ children }: { children: ReactNode }) {
   const [settings, categories, pages] = await Promise.all([getSettings(), getCategories(), getFooterPages()])
   return (
-    <html lang="es-AR" className={inter.variable}>
+    <html lang="es-AR" className={jakarta.variable}>
       <body className="flex min-h-screen flex-col font-sans">
         <CartProvider>
           {settings.announcement ? (
-            <div className="bg-zinc-900 px-4 py-2 text-center text-xs font-medium text-white sm:text-sm">{settings.announcement}</div>
+            <div className="bg-zinc-900 px-4 py-2 text-center text-xs font-semibold text-lime sm:text-sm">{settings.announcement}</div>
           ) : null}
-          <Header storeName={settings.storeName || 'Tienda'} categories={categories} />
+          <Header storeName={settings.storeName || 'Tienda'} categories={categories} whatsappNumber={settings.whatsappNumber} />
           <main className="flex-1">{children}</main>
           <Footer settings={settings} pages={pages} />
           {settings.whatsappNumber ? <WhatsAppButton number={settings.whatsappNumber} /> : null}

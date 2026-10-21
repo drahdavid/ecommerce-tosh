@@ -85,11 +85,11 @@ export default async function ProductPage({ params }: { params: Params }) {
     <div className="mx-auto max-w-7xl px-4 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <nav className="mb-6 text-xs text-zinc-500" aria-label="Migas de pan">
-        <Link href="/">Inicio</Link> / <Link href="/productos">Productos</Link>
+        <Link href="/" className="hover:text-brand">Inicio</Link> / <Link href="/productos" className="hover:text-brand">Productos</Link>
         {category ? (
           <>
             {' / '}
-            <Link href={`/categoria/${category.slug}`}>{category.title}</Link>
+            <Link href={`/categoria/${category.slug}`} className="hover:text-brand">{category.title}</Link>
           </>
         ) : null}
       </nav>
@@ -102,21 +102,27 @@ export default async function ProductPage({ params }: { params: Params }) {
         images={images}
         transferDiscountPercent={pricingSettings.transferDiscountPercent}
       >
-        <ul className="space-y-3 border-t border-zinc-200 pt-6 text-sm text-zinc-700">
-          <li className="flex gap-3">
-            <Truck className="h-5 w-5 shrink-0" />
+        <ul className="space-y-4 rounded-3xl bg-white p-5 text-sm text-zinc-700">
+          <li className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
+              <Truck className="h-5 w-5" />
+            </span>
             <span>
               Envíos a todo el país{settings.freeShippingThreshold ? ` · Gratis desde ${formatMoney(toCents(settings.freeShippingThreshold))}` : ''}. Calculá el costo en el carrito.
             </span>
           </li>
-          <li className="flex gap-3">
-            <CreditCard className="h-5 w-5 shrink-0" />
+          <li className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
+              <CreditCard className="h-5 w-5" />
+            </span>
             <span>Mercado Pago: tarjetas de crédito y débito, dinero en cuenta y cuotas.</span>
           </li>
-          <li className="flex gap-3">
-            <ShieldCheck className="h-5 w-5 shrink-0" />
+          <li className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
+              <ShieldCheck className="h-5 w-5" />
+            </span>
             <span>
-              Compra protegida. Tenés 10 días para arrepentirte (<Link href="/arrepentimiento" className="underline">botón de arrepentimiento</Link>).
+              Compra protegida. Tenés 10 días para arrepentirte (<Link href="/arrepentimiento" className="underline hover:text-brand">botón de arrepentimiento</Link>).
             </span>
           </li>
         </ul>
@@ -124,8 +130,8 @@ export default async function ProductPage({ params }: { params: Params }) {
       </ProductPurchase>
 
       {product.description ? (
-        <section className="mt-16 max-w-3xl">
-          <h2 className="text-xl font-semibold">Descripción</h2>
+        <section className="mt-12 max-w-3xl rounded-3xl bg-white p-5 sm:mt-16 sm:p-8">
+          <h2 className="text-xl font-extrabold">Descripción</h2>
           <RichText data={product.description} className="prose-content mt-4" />
         </section>
       ) : null}

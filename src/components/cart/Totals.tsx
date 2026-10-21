@@ -25,7 +25,7 @@ export const Totals = ({ quote, showShipping }: { quote: CartQuote; showShipping
         <dd>{quote.shipping ? (quote.shippingCents ? formatMoney(quote.shippingCents) : 'Gratis') : '—'}</dd>
       </div>
     ) : null}
-    <div className="flex justify-between border-t border-zinc-200 pt-3 text-base font-semibold">
+    <div className="flex justify-between border-t border-zinc-200 pt-3 text-lg font-extrabold">
       <dt>Total</dt>
       <dd>{formatMoney(quote.totalCents)}</dd>
     </div>

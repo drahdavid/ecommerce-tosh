@@ -42,7 +42,7 @@ export const CartView = () => {
     for (const issue of data.quote.issues) if (issue.type === 'not_found') remove(issue.variantId)
   }, [data, remove])
 
-  if (!ready) return <div className="mt-10 h-40 animate-pulse rounded-lg bg-zinc-100" />
+  if (!ready) return <div className="mt-10 h-40 animate-pulse rounded-3xl bg-white" />
 
   if (lines.length === 0) {
     return (
@@ -60,21 +60,21 @@ export const CartView = () => {
   const blocking = quote?.issues.filter((i) => i.type !== 'coupon_invalid') ?? []
 
   return (
-    <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px]">
-      <ul className="divide-y divide-zinc-200 border-y border-zinc-200">
+    <div className="mt-6 grid gap-4 sm:mt-8 lg:grid-cols-[1fr_380px] lg:gap-6">
+      <ul className="h-fit divide-y divide-zinc-100 rounded-3xl bg-white px-4 shadow-card sm:px-6">
         {lines.map((line) => {
           const q = quote?.lines.find((l) => l.variantId === line.variantId)
           const stockIssue = quote?.issues.find((i) => i.type === 'insufficient_stock' && i.variantId === line.variantId)
           return (
             <li key={line.variantId} className="flex gap-4 py-5">
-              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-md bg-zinc-100">
+              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-zinc-50">
                 {q?.imageUrl ? <Image src={q.imageUrl} alt={q.productTitle} fill sizes="96px" className="object-cover" /> : null}
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <div className="flex justify-between gap-4">
                   <div>
                     {q ? (
-                      <Link href={`/productos/${q.productSlug}`} className="font-medium hover:underline">
+                      <Link href={`/productos/${q.productSlug}`} className="font-semibold hover:text-brand">
                         {q.productTitle}
                       </Link>
                     ) : (
@@ -82,16 +82,16 @@ export const CartView = () => {
                     )}
                     {q && q.variantTitle !== 'Única' ? <p className="text-sm text-zinc-500">{q.variantTitle}</p> : null}
                   </div>
-                  <p className="font-medium">{q ? formatMoney(q.lineTotalCents) : ''}</p>
+                  <p className="font-bold whitespace-nowrap">{q ? formatMoney(q.lineTotalCents) : ''}</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex h-9 items-center rounded-md border border-zinc-300">
-                    <button className="flex h-full w-9 items-center justify-center" onClick={() => setQty(line.variantId, line.qty - 1)} aria-label="Restar uno">
+                  <div className="flex h-10 items-center rounded-full border border-zinc-300">
+                    <button className="flex h-full w-10 items-center justify-center" onClick={() => setQty(line.variantId, line.qty - 1)} aria-label="Restar uno">
                       <Minus className="h-3.5 w-3.5" />
                     </button>
                     <span className="w-8 text-center text-sm">{line.qty}</span>
                     <button
-                      className="flex h-full w-9 items-center justify-center disabled:opacity-40"
+                      className="flex h-full w-10 items-center justify-center disabled:opacity-40"
                       onClick={() => setQty(line.variantId, line.qty + 1)}
                       disabled={q ? line.qty >= q.stock : false}
                       aria-label="Sumar uno"
@@ -99,7 +99,7 @@ export const CartView = () => {
                       <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
-                  <button onClick={() => remove(line.variantId)} className="flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900">
+                  <button onClick={() => remove(line.variantId)} className="flex h-10 items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900">
                     <Trash2 className="h-4 w-4" /> Quitar
                   </button>
                 </div>
@@ -123,7 +123,7 @@ export const CartView = () => {
         })}
       </ul>
 
-      <aside className="h-fit space-y-6 rounded-lg border border-zinc-200 p-6">
+      <aside className="h-fit space-y-6 rounded-3xl bg-white p-5 shadow-card sm:p-6 lg:sticky lg:top-24">
         <CouponForm key={couponCode ?? ''} current={couponCode} onApply={setCouponCode} />
         {couponCode ? (
           <p className="-mt-3 text-sm">
@@ -142,15 +142,15 @@ export const CartView = () => {
           <>
             <Totals quote={quote} showShipping={false} />
             {quote.freeShippingRemainingCents ? (
-              <p className="rounded-md bg-zinc-50 p-3 text-sm">
+              <p className="rounded-2xl bg-brand-soft p-3 text-sm">
                 Te faltan <strong>{formatMoney(quote.freeShippingRemainingCents)}</strong> para el envío gratis.
               </p>
             ) : quote.freeShippingRemainingCents === 0 ? (
-              <p className="rounded-md bg-success/10 p-3 text-sm text-success">¡Tenés envío gratis!</p>
+              <p className="rounded-2xl bg-lime-soft p-3 text-sm font-semibold">¡Tenés envío gratis!</p>
             ) : null}
           </>
         ) : (
-          <div className="h-32 animate-pulse rounded bg-zinc-100" />
+          <div className="h-32 animate-pulse rounded-2xl bg-zinc-100" />
         )}
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         {blocking.length && data?.message ? <p className="text-sm text-red-600">{data.message}</p> : null}
