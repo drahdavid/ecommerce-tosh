@@ -59,6 +59,16 @@
   input[type='checkbox'] {
     accent-color: var(--color-brand);
   }
+  /* Tailwind v4 dejó los botones con cursor por defecto: todo lo clickeable lleva la manito. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  select:not(:disabled),
+  summary,
+  label:has(> input[type='radio']:not(:disabled), > input[type='checkbox']:not(:disabled)),
+  input[type='radio']:not(:disabled),
+  input[type='checkbox']:not(:disabled) {
+    cursor: pointer;
+  }
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-brand;
   }
