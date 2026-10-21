@@ -101,7 +101,8 @@ const queryProducts = async (query: ProductQuery) => {
     collection: 'products',
     where: { and },
     sort: SORTS[query.sort ?? ''] ?? '-createdAt',
-    limit: query.limit ?? 24,
+    // 20 llena filas completas tanto con 4 columnas como con 5.
+    limit: query.limit ?? 20,
     page: query.page ?? 1,
     depth: 1,
     joins: { variants: { limit: 100 } },

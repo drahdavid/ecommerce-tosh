@@ -14,7 +14,7 @@ export const ProductCard = ({ product, priority }: { product: ProductCardData; p
           src={product.image.url}
           alt={product.image.alt}
           fill
-          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+          sizes="(min-width: 1280px) 240px, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           priority={priority}
         />
@@ -34,10 +34,10 @@ export const ProductCard = ({ product, priority }: { product: ProductCardData; p
   </Link>
 )
 
-export const ProductGrid = ({ products }: { products: ProductCardData[] }) => (
-  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+export const ProductGrid = ({ products, priority = true }: { products: ProductCardData[]; priority?: boolean }) => (
+  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
     {products.map((p, i) => (
-      <ProductCard key={p.id} product={p} priority={i < 4} />
+      <ProductCard key={p.id} product={p} priority={priority && i < 5} />
     ))}
   </div>
 )

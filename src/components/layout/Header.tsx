@@ -41,10 +41,18 @@ export const Header = ({ storeName, categories, whatsappNumber }: { storeName: s
             {/* En mobile no entra en una línea junto a los íconos: se parte en dos, más chico. */}
             <span className="text-base leading-tight font-extrabold tracking-tight sm:text-xl">{storeName}</span>
           </Link>
-          <SearchForm id="header-search" className="hidden max-w-xl flex-1 md:flex" />
-          <div className="ml-auto flex items-center gap-1">
-            <Link href="/cuenta" className="flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-zinc-100" aria-label="Mi cuenta">
+          {/* Centrado entre el logo y los íconos, como en las tiendas grandes. */}
+          <SearchForm id="header-search" className="mx-auto hidden max-w-2xl flex-1 md:flex" />
+          <div className="ml-auto flex items-center gap-1 md:ml-0">
+            <Link
+              href="/cuenta"
+              className="flex h-11 w-11 items-center justify-center gap-2 rounded-full text-sm font-semibold transition hover:bg-zinc-100 lg:w-auto lg:px-3"
+              aria-label="Mi cuenta"
+            >
               <User className="h-5 w-5" />
+              <span className="hidden lg:inline" aria-hidden="true">
+                Mi cuenta
+              </span>
             </Link>
             <CartButton />
           </div>
