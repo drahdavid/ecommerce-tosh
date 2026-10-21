@@ -38,7 +38,13 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
-    meta: { titleSuffix: ' — Admin tienda' },
+    meta: { titleSuffix: ' — Admin tienda', icons: [{ rel: 'icon', type: 'image/png', url: '/icon.png' }] },
+    components: {
+      graphics: {
+        Icon: '@/components/admin/BrandGraphics#BrandIcon',
+        Logo: '@/components/admin/BrandGraphics#BrandLogo',
+      },
+    },
   },
   i18n: { supportedLanguages: { es }, fallbackLanguage: 'es' },
   collections: [

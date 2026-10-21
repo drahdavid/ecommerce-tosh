@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
   // Imagen Docker mínima (servidor propio). Vercel ignora esta opción.
   output: 'standalone',
   images: {
-    localPatterns: [{ pathname: '/api/media/file/**' }],
+    localPatterns: [{ pathname: '/api/media/file/**' }, { pathname: '/logo.png', search: '' }],
     remotePatterns,
     // En desarrollo el host es localhost: Next bloquea optimizar IPs privadas por defecto.
     dangerouslyAllowLocalIP: process.env.NODE_ENV !== 'production',

@@ -38,6 +38,8 @@ ENV NODE_ENV=production \
 RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# standalone no incluye public/ (logo y demás archivos estáticos).
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 # Fotos subidas al admin mientras no se use R2: montar un volumen persistente en /app/media.
 RUN mkdir -p /app/media && chown nextjs:nodejs /app/media
 USER nextjs

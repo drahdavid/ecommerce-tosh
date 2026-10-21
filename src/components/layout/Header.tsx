@@ -1,5 +1,7 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { Search, User } from 'lucide-react'
+import { LOGO, logoWidth } from '@/lib/brand'
 import type { Category } from '@/payload-types'
 import { CartButton } from './CartButton'
 import { MobileMenu } from './MobileMenu'
@@ -10,8 +12,10 @@ export const Header = ({ storeName, categories }: { storeName: string; categorie
     <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
         <MobileMenu categories={topLevel} />
-        <Link href="/" className="text-xl font-bold tracking-tight">
-          {storeName}
+        <Link href="/" className="flex items-center gap-2">
+          <Image src={LOGO.src} alt="" width={logoWidth(36)} height={36} priority className="shrink-0" />
+          {/* En mobile no entra en una línea junto a los íconos: se parte en dos, más chico. */}
+          <span className="text-base font-bold leading-tight tracking-tight sm:text-xl">{storeName}</span>
         </Link>
         <nav className="ml-6 hidden items-center gap-5 text-sm md:flex" aria-label="Categorías">
           <Link href="/productos" className="hover:text-zinc-500">

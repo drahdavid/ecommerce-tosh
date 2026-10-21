@@ -1,4 +1,6 @@
+import Image from 'next/image'
 import Link from 'next/link'
+import { LOGO, logoWidth } from '@/lib/brand'
 import type { Media, StoreSetting } from '@/payload-types'
 import { whatsappLink } from '@/lib/whatsapp'
 
@@ -8,7 +10,10 @@ export const Footer = ({ settings, pages }: { settings: StoreSetting; pages: { i
     <footer className="mt-24 border-t border-zinc-200 bg-zinc-50">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <p className="text-lg font-bold">{settings.storeName}</p>
+          <div className="flex items-center gap-2">
+            <Image src={LOGO.src} alt="" width={logoWidth(32)} height={32} />
+            <p className="text-lg font-bold">{settings.storeName}</p>
+          </div>
           {settings.tagline ? <p className="mt-2 text-sm text-zinc-600">{settings.tagline}</p> : null}
           <div className="mt-4 flex gap-4 text-sm">
             {settings.instagram ? <a href={settings.instagram} target="_blank" rel="noreferrer">Instagram</a> : null}
