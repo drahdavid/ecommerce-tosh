@@ -39,13 +39,13 @@
     "graphql": "^16.8.1",
     "lucide-react": "^1.58.0",
     "mercadopago": "^3.6.1",
-    "next": "16.3.3",
+    "next": "16.3.8",
     "payload": "3.91.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "react-email": "6.11.3",
     "resend": "^6.34.1",
-    "sharp": "0.35.4",
+    "sharp": "0.35.5",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.7"
   },
@@ -58,7 +58,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "4.5.2",
     "eslint": "^9.16.0",
-    "eslint-config-next": "16.3.3",
+    "eslint-config-next": "16.3.8",
     "jsdom": "28.0.0",
     "postcss": "^8.5.30",
     "prettier": "^3.4.2",
@@ -77,7 +77,10 @@
       "sharp",
       "esbuild",
       "unrs-resolver"
-    ]
+    ],
+    "overrides": {
+      "dompurify": "^3.4.16"
+    }
   },
   "packageManager": "pnpm@10.21.0"
 }

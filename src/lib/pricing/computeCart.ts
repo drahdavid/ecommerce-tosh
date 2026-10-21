@@ -73,8 +73,8 @@ export const computeCart = (input: CartInput, ctx: PricingContext): CartQuote =>
       issues.push({ type: 'coupon_invalid', reason })
     } else if (ctx.coupon) {
       const c = ctx.coupon
-      couponDiscountCents =
-        c.type === 'percent' ? percentOf(subtotalCents, c.value) : Math.min(c.value, subtotalCents)
+      // Nunca más que el subtotal, ni siquiera con un porcentaje mal cargado (> 100).
+      couponDiscountCents = Math.min(c.type === 'percent' ? percentOf(subtotalCents, c.value) : c.value, subtotalCents)
       coupon = { code: c.code, type: c.type, value: c.value }
     }
   }

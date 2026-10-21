@@ -235,12 +235,12 @@ describe('procesamiento de pagos de Mercado Pago', () => {
     expect((await payload.count({ collection: 'payment-events' })).totalDocs).toBe(1)
   })
 
-  it('marca para revisión si el monto cobrado no coincide', async () => {
+  it('si el monto cobrado no coincide, no confirma el pedido y lo marca para revisión', async () => {
     const order = await mpOrder()
     const payment = fakePayment(order.id, { transaction_amount: 1 })
     await processPayment(payload, String(payment.id), 'webhook', payment)
     const updated = await payload.findByID({ collection: 'orders', id: order.id })
-    expect(updated.status).toBe('paid')
+    expect(updated.status).toBe('pending_payment')
     expect(updated.needsReview).toBe('amount_mismatch')
   })
 

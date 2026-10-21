@@ -85,41 +85,75 @@ const SORTS: Record<string, string> = {
   nombre: 'title',
 }
 
-const fetchProducts = unstable_cache(
-  async (query: ProductQuery) => {
-    const payload = await getPayloadClient()
-    const and: Where[] = [{ _status: { equals: 'published' } }]
-    if (query.q) and.push({ title: { like: query.q } })
-    if (query.featured) and.push({ featured: { equals: true } })
-    if (query.category) {
-      const { docs } = await payload.find({ collection: 'categories', where: { slug: { equals: query.category } }, limit: 1, depth: 0 })
-      if (!docs[0]) return { docs: [] as Product[], totalDocs: 0, totalPages: 0, page: 1 }
-      // Incluye subcategorías directas.
-      const children = await payload.find({ collection: 'categories', where: { parent: { equals: docs[0].id } }, limit: 100, depth: 0 })
-      and.push({ category: { in: [docs[0].id, ...children.docs.map((c) => c.id)] } })
-    }
-    const res = await payload.find({
-      collection: 'products',
-      where: { and },
-      sort: SORTS[query.sort ?? ''] ?? '-createdAt',
-      limit: query.limit ?? 24,
-      page: query.page ?? 1,
-      depth: 1,
-      joins: { variants: { limit: 100 } },
-      overrideAccess: false,
-    })
-    return { docs: res.docs, totalDocs: res.totalDocs, totalPages: res.totalPages, page: res.page ?? 1 }
-  },
-  ['products-list'],
-  { tags: [TAGS.products] },
-)
+const queryProducts = async (query: ProductQuery) => {
+  const payload = await getPayloadClient()
+  const and: Where[] = [{ _status: { equals: 'published' } }]
+  if (query.q) and.push({ title: { like: query.q } })
+  if (query.featured) and.push({ featured: { equals: true } })
+  if (query.category) {
+    const { docs } = await payload.find({ collection: 'categories', where: { slug: { equals: query.category } }, limit: 1, depth: 0 })
+    if (!docs[0]) return { docs: [] as Product[], totalDocs: 0, totalPages: 0, page: 1 }
+    // Incluye subcategorías directas.
+    const children = await payload.find({ collection: 'categories', where: { parent: { equals: docs[0].id } }, limit: 100, depth: 0 })
+    and.push({ category: { in: [docs[0].id, ...children.docs.map((c) => c.id)] } })
+  }
+  const res = await payload.find({
+    collection: 'products',
+    where: { and },
+    sort: SORTS[query.sort ?? ''] ?? '-createdAt',
+    limit: query.limit ?? 24,
+    page: query.page ?? 1,
+    depth: 1,
+    joins: { variants: { limit: 100 } },
+    overrideAccess: false,
+  })
+  return { docs: res.docs, totalDocs: res.totalDocs, totalPages: res.totalPages, page: res.page ?? 1 }
+}
 
-export const getProductCards = async (query: ProductQuery) => {
-  const [res, settings, rate] = await Promise.all([fetchProducts(query), getSettings(), getDisplayRate()])
+const fetchProducts = unstable_cache(queryProducts, ['products-list'], { tags: [TAGS.products] })
+
+const MAX_PAGE = 100
+
+/**
+ * Los parámetros vienen de la URL y son la clave de la cache: cada valor distinto es una entrada
+ * nueva en disco. Se acotan, y las búsquedas de texto no se cachean.
+ */
+const normalizeQuery = (query: ProductQuery): ProductQuery => ({
+  ...query,
+  q: query.q?.trim().slice(0, 60) || undefined,
+  sort: query.sort && query.sort in SORTS ? query.sort : undefined,
+  page: Math.min(MAX_PAGE, Math.max(1, Math.floor(query.page ?? 1) || 1)),
+})
+
+export const getProductCards = async (rawQuery: ProductQuery) => {
+  const query = normalizeQuery(rawQuery)
+  const [res, settings, rate] = await Promise.all([query.q ? queryProducts(query) : fetchProducts(query), getSettings(), getDisplayRate()])
   return { ...res, cards: res.docs.map((p) => toCard(p, settings, rate)) }
 }
 
-export const getProductBySlug = (slug: string) =>
+/**
+ * Slugs publicados (una sola entrada de cache por colección). Las fichas se cachean por slug:
+ * sin este filtro, cada URL inventada (/productos/xyz1, /productos/xyz2…) crearía una entrada.
+ */
+const getPublishedSlugs = unstable_cache(
+  async (collection: 'products' | 'pages'): Promise<string[]> => {
+    const { docs } = await (await getPayloadClient()).find({
+      collection,
+      where: { _status: { equals: 'published' } },
+      pagination: false,
+      depth: 0,
+      select: { slug: true },
+      overrideAccess: false,
+    })
+    return docs.map((d) => d.slug ?? '').filter(Boolean)
+  },
+  ['published-slugs'],
+  { tags: [TAGS.products, TAGS.pages] },
+)
+
+export const getProductBySlug = async (slug: string) => ((await getPublishedSlugs('products')).includes(slug) ? cachedProductBySlug(slug) : null)
+
+const cachedProductBySlug = (slug: string) =>
   unstable_cache(
     async (): Promise<Product | null> => {
       const payload = await getPayloadClient()
@@ -153,7 +187,9 @@ export const getFooterPages = unstable_cache(
   { tags: [TAGS.pages] },
 )
 
-export const getPageBySlug = (slug: string) =>
+export const getPageBySlug = async (slug: string) => ((await getPublishedSlugs('pages')).includes(slug) ? cachedPageBySlug(slug) : null)
+
+const cachedPageBySlug = (slug: string) =>
   unstable_cache(
     async () => {
       const { docs } = await (await getPayloadClient()).find({

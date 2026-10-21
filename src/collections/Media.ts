@@ -30,7 +30,9 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    mimeTypes: ['image/*', 'application/pdf'],
+    // Lista explícita: 'image/*' incluye SVG (puede llevar scripts) y todo Media es público,
+    // así que tampoco va ningún PDF (facturas, comprobantes): esos se guardan fuera, como URL.
+    mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'],
     focalPoint: true,
     formatOptions: { format: 'webp', options: { quality: 82 } },
     imageSizes: [

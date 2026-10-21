@@ -1,5 +1,6 @@
 import type { GlobalConfig } from 'payload'
 import { admins, anyone, staffField } from '@/access'
+import { httpUrl, matches } from '@/fields/validate'
 import { safeRevalidate, TAGS } from '@/lib/revalidate'
 
 export const StoreSettings: GlobalConfig = {
@@ -48,15 +49,16 @@ export const StoreSettings: GlobalConfig = {
             {
               type: 'row',
               fields: [
-                { name: 'instagram', type: 'text', label: 'Instagram (URL)' },
-                { name: 'facebook', type: 'text', label: 'Facebook (URL)' },
-                { name: 'tiktok', type: 'text', label: 'TikTok (URL)' },
+                { name: 'instagram', type: 'text', label: 'Instagram (URL)', validate: httpUrl },
+                { name: 'facebook', type: 'text', label: 'Facebook (URL)', validate: httpUrl },
+                { name: 'tiktok', type: 'text', label: 'TikTok (URL)', validate: httpUrl },
               ],
             },
             {
               name: 'dataFiscalUrl',
               type: 'text',
               label: 'Link del QR "Data Fiscal" de ARCA',
+              validate: httpUrl,
               admin: { description: 'Obligatorio exhibirlo en el sitio. Se obtiene en ARCA → "Formulario 960 - Data Fiscal".' },
             },
             { name: 'dataFiscalImage', type: 'upload', relationTo: 'media', label: 'Imagen del QR Data Fiscal' },
@@ -170,8 +172,9 @@ export const StoreSettings: GlobalConfig = {
             {
               type: 'row',
               fields: [
-                { name: 'ga4Id', type: 'text', label: 'Google Analytics 4 (G-XXXX)' },
-                { name: 'metaPixelId', type: 'text', label: 'Meta Pixel ID' },
+                // Se insertan dentro de un <script>: solo el formato del ID, nada más.
+                { name: 'ga4Id', type: 'text', label: 'Google Analytics 4 (G-XXXX)', validate: matches(/^G-[A-Z0-9]{4,20}$/, 'Formato: G-XXXXXXX') },
+                { name: 'metaPixelId', type: 'text', label: 'Meta Pixel ID', validate: matches(/^\d{5,20}$/, 'Son solo números') },
               ],
             },
             {

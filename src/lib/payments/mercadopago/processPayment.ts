@@ -92,11 +92,13 @@ export const processPayment = async (
         const amountOk =
           payment.currency_id === 'ARS' &&
           Math.abs(Number(payment.transaction_amount) - Number(order.totals?.total)) < 0.01
+        // Un pago por otro monto o moneda no confirma el pedido: queda para que lo revise el admin.
         if (!amountOk) update.needsReview = 'amount_mismatch'
 
         if (order.status === 'pending_payment') {
-          update.status = 'paid'
+          if (amountOk) update.status = 'paid'
         } else if (order.status === 'cancelled') {
+          if (!amountOk) break
           // Pago tardío: la reserva venció y el stock se devolvió. Se intenta volver a reservar.
           const lines = (order.items ?? []).map((i) => ({ variantId: i.variant as number, qty: i.qty ?? 0 }))
           const reclaimed = await reclaimOrderStock(payload, req, order.id, lines)

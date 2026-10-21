@@ -13,7 +13,8 @@ export const Products: CollectionConfig = {
     preview: (doc) => `${process.env.NEXT_PUBLIC_SERVER_URL || ''}/productos/${doc.slug}`,
   },
   versions: { drafts: true },
-  access: { read: publishedOrStaff, create: staff, update: staff, delete: staff },
+  // Sin readVersions explícito Payload deja ver los borradores a cualquier usuario logueado (también clientes).
+  access: { read: publishedOrStaff, readVersions: staff, create: staff, update: staff, delete: staff },
   fields: [
     { name: 'title', type: 'text', label: 'Nombre', required: true },
     slugField(),

@@ -1,4 +1,5 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, NumberFieldSingleValidation } from 'payload'
+import { number } from 'payload/shared'
 import { staff } from '@/access'
 
 export const Coupons: CollectionConfig = {
@@ -42,7 +43,19 @@ export const Coupons: CollectionConfig = {
             { label: 'Monto fijo (ARS)', value: 'fixed' },
           ],
         },
-        { name: 'value', type: 'number', label: 'Valor', required: true, min: 0, admin: { description: '% o pesos según el tipo.' } },
+        {
+          name: 'value',
+          type: 'number',
+          label: 'Valor',
+          required: true,
+          min: 0,
+          admin: { description: '% o pesos según el tipo.' },
+          // Un `validate` propio reemplaza al de Payload (requerido, mínimo): se lo sigue llamando.
+          validate: ((value, options) =>
+            (options.siblingData as { type?: string })?.type === 'percent' && Number(value) > 100
+              ? 'Un porcentaje no puede superar 100'
+              : number(value, options)) satisfies NumberFieldSingleValidation,
+        },
         { name: 'minSubtotal', type: 'number', label: 'Compra mínima (ARS)', min: 0, defaultValue: 0 },
       ],
     },

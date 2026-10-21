@@ -6,8 +6,8 @@ import { ProfileForm } from '@/components/account/ProfileForm'
 import { StatusBadge } from '@/components/order/OrderDetails'
 import { getCurrentCustomer } from '@/lib/data/auth'
 import { getPayloadClient } from '@/lib/data/catalog'
+import { linkGuestOrders } from '@/lib/data/orders'
 import { formatMoney, toCents } from '@/lib/money'
-import { linkGuestOrders } from './actions'
 
 export const metadata: Metadata = { title: 'Mi cuenta', robots: { index: false } }
 export const dynamic = 'force-dynamic'
@@ -16,7 +16,7 @@ export default async function AccountPage() {
   const customer = await getCurrentCustomer()
   if (!customer) redirect('/cuenta/ingresar')
 
-  if (customer._verified !== false) await linkGuestOrders(customer.id, customer.email)
+  if (customer._verified === true) await linkGuestOrders(customer.id, customer.email)
 
   const payload = await getPayloadClient()
   const { docs: orders } = await payload.find({

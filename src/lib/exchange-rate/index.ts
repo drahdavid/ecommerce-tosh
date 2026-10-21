@@ -90,14 +90,27 @@ export const toSnapshot = (g: ExchangeRate): RateSnapshot | null => {
   return null
 }
 
+/** Entre reintentos disparados por cotizaciones de carrito (el cron horario no se limita). */
+export const REFRESH_RETRY_MS = 5 * 60_000
+
+let lastRefreshAttempt = 0
+
+/** Solo para tests. */
+export const resetRefreshThrottle = () => {
+  lastRefreshAttempt = 0
+}
+
 /**
  * Cotización vigente para cobrar. Si el modo es automático y está vencida (el cron falló),
- * intenta actualizarla en el momento. Devuelve null si no hay una cotización confiable:
+ * intenta actualizarla en el momento, como mucho una vez cada REFRESH_RETRY_MS: cada intento
+ * consulta DolarAPI, escribe en la base e invalida la cache de productos, y lo puede disparar
+ * cualquier visitante cotizando el carrito. Devuelve null si no hay una cotización confiable:
  * en ese caso los productos en USD no se pueden vender hasta que se resuelva.
  */
-export const getEffectiveRate = async (payload: Payload, opts: { refreshIfStale?: boolean } = {}) => {
+export const getEffectiveRate = async (payload: Payload, opts: { refreshIfStale?: boolean } = {}, now = Date.now()) => {
   let g = await payload.findGlobal({ slug: 'exchange-rate', depth: 0, overrideAccess: true })
-  if (g.mode === 'auto' && isStale(g) && opts.refreshIfStale) {
+  if (g.mode === 'auto' && isStale(g) && opts.refreshIfStale && now - lastRefreshAttempt >= REFRESH_RETRY_MS) {
+    lastRefreshAttempt = now
     await refreshExchangeRate(payload)
     g = await payload.findGlobal({ slug: 'exchange-rate', depth: 0, overrideAccess: true })
   }

@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
-import { admins, isAdminUser, staff } from '@/access'
+import { admins, isAdminUser, isStaffUser, staff } from '@/access'
+import { authHardening } from '@/lib/auth/hardening'
 
 /** Usuarios del panel de administración. */
 export const Users: CollectionConfig = {
@@ -9,11 +10,13 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
     group: 'Configuración',
   },
-  auth: true,
+  auth: { cookies: authHardening.cookies },
+  hooks: { beforeOperation: [authHardening.beforeOperation] },
   access: {
     read: staff,
     create: admins,
-    update: ({ req, id }) => isAdminUser(req) || req.user?.id === id,
+    // Se compara también la colección: customers y users comparten la secuencia de ids (1, 2, …).
+    update: ({ req, id }) => isAdminUser(req) || (isStaffUser(req) && req.user?.id === id),
     delete: admins,
     admin: ({ req }) => req.user?.collection === 'users',
   },

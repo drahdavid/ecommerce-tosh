@@ -1,12 +1,13 @@
 'use client'
 
-import { Button, useDocumentInfo, useFormFields } from '@payloadcms/ui'
+import { Button, useAuth, useDocumentInfo, useFormFields } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 /** Acciones rápidas del pedido en el panel: reembolso por MP, generar envío y ver en MP. */
 export const OrderActions = () => {
   const { id } = useDocumentInfo()
+  const { user } = useAuth<{ role?: string }>()
   const router = useRouter()
   const status = useFormFields(([fields]) => fields.status?.value as string | undefined)
   const paymentMethod = useFormFields(([fields]) => fields.paymentMethod?.value as string | undefined)
@@ -34,7 +35,7 @@ export const OrderActions = () => {
     }
   }
 
-  const canRefund = paymentMethod === 'mercadopago' && paymentId && ['paid', 'preparing', 'shipped', 'delivered'].includes(status ?? '')
+  const canRefund = user?.role === 'admin' && paymentMethod === 'mercadopago' && paymentId && ['paid', 'preparing', 'shipped', 'delivered'].includes(status ?? '')
   const canShip = provider && !['pickup', 'rateTable'].includes(provider) && ['paid', 'preparing'].includes(status ?? '')
 
   return (

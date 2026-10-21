@@ -2,7 +2,7 @@
 # El build NO necesita la base de datos: las páginas se renderizan por request y las
 # migraciones se aplican al iniciar (prodMigrations en payload.config.ts).
 
-FROM node:22.17.0-alpine AS base
+FROM node:22.23.4-alpine AS base
 RUN apk add --no-cache libc6-compat
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable && corepack prepare pnpm@10.21.0 --activate

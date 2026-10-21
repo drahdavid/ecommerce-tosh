@@ -9,10 +9,10 @@ import { PROVINCES } from '@/lib/shipping/types'
 
 const addressSchema = z.object({
   label: z.string().trim().max(40).optional().nullable(),
-  street: z.string().trim().min(1, 'Ingresá la calle'),
-  number: z.string().trim().min(1, 'Ingresá la altura'),
+  street: z.string().trim().min(1, 'Ingresá la calle').max(120),
+  number: z.string().trim().min(1, 'Ingresá la altura').max(20),
   floor: z.string().trim().max(30).optional().nullable(),
-  city: z.string().trim().min(1, 'Ingresá la localidad'),
+  city: z.string().trim().min(1, 'Ingresá la localidad').max(120),
   province: z.enum(PROVINCES, 'Elegí la provincia'),
   postalCode: z.string().trim().min(4).max(8),
   isDefault: z.boolean().optional(),
@@ -62,16 +62,4 @@ export async function deleteAccountAction(): Promise<ActionResult> {
   await payload.delete({ collection: 'customers', id: customer.id, overrideAccess: true })
   ;(await cookies()).delete('payload-token')
   redirect('/?baja=1')
-}
-
-/** Vincula a la cuenta los pedidos hechos como invitado con el mismo email (solo emails verificados). */
-export async function linkGuestOrders(customerId: number, email: string) {
-  const payload = await getPayloadClient()
-  await payload.update({
-    collection: 'orders',
-    where: { and: [{ email: { equals: email.toLowerCase() } }, { customer: { exists: false } }] },
-    data: { customer: customerId },
-    overrideAccess: true,
-    context: { skipEmails: true },
-  })
 }

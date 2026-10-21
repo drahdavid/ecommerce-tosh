@@ -132,6 +132,13 @@ describe('computeCart', () => {
     expect(q.totalCents).toBe(0)
   })
 
+  it('un cupón porcentual mal cargado (> 100 %) tampoco deja el total en negativo', () => {
+    const coupon = { code: 'MAL', type: 'percent' as const, value: 150, minSubtotalCents: 0, usageCount: 0, active: true }
+    const q = computeCart({ lines: [{ variantId: 1, qty: 1 }], couponCode: 'MAL' }, ctx({ coupon }))
+    expect(q.couponDiscountCents).toBe(10_000_00)
+    expect(q.totalCents).toBe(0)
+  })
+
   it('cupón inválido no descuenta y deja el motivo', () => {
     const coupon = { code: 'VIEJO', type: 'percent' as const, value: 10, minSubtotalCents: 0, usageCount: 0, active: true, expiresAt: '2026-01-01T00:00:00Z' }
     const q = computeCart({ lines: [{ variantId: 1, qty: 1 }], couponCode: 'VIEJO' }, ctx({ coupon }))

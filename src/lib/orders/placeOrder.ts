@@ -13,7 +13,7 @@ import { assignOrderNumber, consumeCoupon, reserveStock } from './stock'
 
 export const checkoutSchema = z
   .object({
-    lines: z.array(z.object({ variantId: z.union([z.string(), z.number()]), qty: z.number().int().min(1).max(99) })).min(1, 'El carrito está vacío'),
+    lines: z.array(z.object({ variantId: z.union([z.string(), z.number()]), qty: z.number().int().min(1).max(99) })).min(1, 'El carrito está vacío').max(50, 'El carrito tiene demasiados productos'),
     couponCode: z.string().trim().max(40).optional().nullable(),
     contact: z.object({
       email: z.email('Email inválido'),
@@ -25,10 +25,10 @@ export const checkoutSchema = z
     shippingRateId: z.string().min(1, 'Elegí un método de entrega'),
     address: z
       .object({
-        street: z.string().trim().min(1, 'Ingresá la calle'),
-        number: z.string().trim().min(1, 'Ingresá la altura'),
+        street: z.string().trim().min(1, 'Ingresá la calle').max(120),
+        number: z.string().trim().min(1, 'Ingresá la altura').max(20),
         floor: z.string().trim().max(30).optional().nullable(),
-        city: z.string().trim().min(1, 'Ingresá la localidad'),
+        city: z.string().trim().min(1, 'Ingresá la localidad').max(120),
         province: z.enum(PROVINCES, 'Elegí la provincia'),
         postalCode: z.string().trim().min(4, 'Código postal inválido').max(8),
         notes: z.string().trim().max(300).optional().nullable(),

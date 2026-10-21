@@ -9,7 +9,8 @@ export const Pages: CollectionConfig = {
   labels: { singular: 'Página', plural: 'Páginas' },
   admin: { useAsTitle: 'title', defaultColumns: ['title', 'slug', 'showInFooter'], group: 'Contenido' },
   versions: { drafts: true },
-  access: { read: publishedOrStaff, create: staff, update: staff, delete: staff },
+  // Sin readVersions explícito Payload deja ver los borradores a cualquier usuario logueado (también clientes).
+  access: { read: publishedOrStaff, readVersions: staff, create: staff, update: staff, delete: staff },
   fields: [
     { name: 'title', type: 'text', label: 'Título', required: true },
     slugField(),

@@ -67,7 +67,7 @@ export default async function CheckoutResultPage({ searchParams }: { searchParam
               {failed ? 'Reintentar el pago' : 'Ir a pagar'}
             </a>
           ) : null}
-          <Link href={`/pedido/${order.orderNumber}?t=${sp.t ?? ''}`} className={buttonVariants({ variant: 'outline' })}>
+          <Link href={`/pedido/${order.orderNumber}`} className={buttonVariants({ variant: 'outline' })}>
             Ver mi pedido
           </Link>
         </div>

@@ -1,5 +1,6 @@
 import type { CollectionConfig, Field } from 'payload'
-import { staff, staffOrOwner } from '@/access'
+import { staff, staffField, staffOrOwner } from '@/access'
+import { httpUrl } from '@/fields/validate'
 import { ORDER_STATUSES, STATUS_LABELS } from '@/lib/orders/stateMachine'
 import { PROVINCES } from '@/lib/shipping/types'
 import { orderAfterChange, orderBeforeChange } from './hooks'
@@ -13,6 +14,18 @@ const money = (name: string, label: string): Field => ({
 })
 
 const ro = { readOnly: true } as const
+
+/**
+ * Campos que escribe solo el sistema (checkout, pagos, cron) vía Local API con overrideAccess.
+ * `admin.readOnly` bloquea solo la UI: sin esto un staff podría cambiarlos por REST (por ejemplo
+ * `mp.paymentId`, y después reembolsar otro pago de la cuenta de Mercado Pago).
+ * No incluye statusHistory, paidAt ni shipment: los completa el hook beforeChange en las
+ * ediciones del staff y la field access los revertiría.
+ */
+const systemOnly = { update: () => false }
+
+/** Datos internos que el cliente no ve por la API (las páginas usan Local API). */
+const staffOnlyRead = { read: staffField }
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
@@ -39,7 +52,7 @@ export const Orders: CollectionConfig = {
     {
       type: 'row',
       fields: [
-        { name: 'orderNumber', type: 'text', label: 'N° de pedido', unique: true, index: true, admin: ro },
+        { name: 'orderNumber', type: 'text', label: 'N° de pedido', unique: true, index: true, admin: ro, access: systemOnly },
         {
           name: 'status',
           type: 'select',
@@ -59,6 +72,7 @@ export const Orders: CollectionConfig = {
             { label: 'Transferencia bancaria', value: 'transfer' },
           ],
           admin: ro,
+          access: systemOnly,
         },
       ],
     },
@@ -75,8 +89,9 @@ export const Orders: CollectionConfig = {
         { label: 'Otro', value: 'other' },
       ],
       admin: { position: 'sidebar' },
+      access: staffOnlyRead,
     },
-    { name: 'adminNotes', type: 'textarea', label: 'Notas internas', admin: { position: 'sidebar' } },
+    { name: 'adminNotes', type: 'textarea', label: 'Notas internas', admin: { position: 'sidebar' }, access: staffOnlyRead },
     {
       type: 'ui',
       name: 'orderActions',
@@ -110,14 +125,14 @@ export const Orders: CollectionConfig = {
               label: 'IP de la compra',
               index: true,
               admin: { readOnly: true, description: 'Para limitar pedidos impagos simultáneos.' },
-              access: { read: ({ req }) => req.user?.collection === 'users' },
+              access: { read: staffField, ...systemOnly },
             },
             {
               name: 'accessToken',
               type: 'text',
               label: 'Token de acceso (invitado)',
               admin: { readOnly: true, hidden: true },
-              access: { read: ({ req }) => req.user?.collection === 'users' },
+              access: { read: staffField, ...systemOnly },
             },
           ],
         },
@@ -129,6 +144,7 @@ export const Orders: CollectionConfig = {
               type: 'array',
               label: 'Productos',
               admin: { readOnly: true },
+              access: systemOnly,
               fields: [
                 {
                   type: 'row',
@@ -162,6 +178,7 @@ export const Orders: CollectionConfig = {
               name: 'totals',
               type: 'group',
               label: 'Totales (ARS)',
+              access: systemOnly,
               fields: [
                 {
                   type: 'row',
@@ -181,6 +198,7 @@ export const Orders: CollectionConfig = {
               type: 'group',
               label: 'Cupón aplicado',
               admin: { readOnly: true },
+              access: systemOnly,
               fields: [
                 {
                   type: 'row',
@@ -197,6 +215,7 @@ export const Orders: CollectionConfig = {
               type: 'group',
               label: 'Cotización usada (USD → ARS)',
               admin: { readOnly: true, description: 'Congelada al crear el pedido.' },
+              access: systemOnly,
               fields: [
                 {
                   type: 'row',
@@ -218,6 +237,7 @@ export const Orders: CollectionConfig = {
               type: 'group',
               label: 'Método elegido',
               admin: { readOnly: true },
+              access: systemOnly,
               fields: [
                 {
                   type: 'row',
@@ -276,14 +296,14 @@ export const Orders: CollectionConfig = {
                   fields: [
                     { name: 'carrier', type: 'text', label: 'Transporte' },
                     { name: 'trackingNumber', type: 'text', label: 'N° de seguimiento' },
-                    { name: 'trackingUrl', type: 'text', label: 'URL de seguimiento' },
+                    { name: 'trackingUrl', type: 'text', label: 'URL de seguimiento', validate: httpUrl },
                   ],
                 },
                 {
                   type: 'row',
                   fields: [
                     { name: 'providerShipmentId', type: 'text', label: 'ID en el proveedor', admin: ro },
-                    { name: 'labelUrl', type: 'text', label: 'Etiqueta (URL)' },
+                    { name: 'labelUrl', type: 'text', label: 'Etiqueta (URL)', validate: httpUrl },
                     { name: 'shippedAt', type: 'date', label: 'Despachado', admin: ro },
                   ],
                 },
@@ -299,6 +319,7 @@ export const Orders: CollectionConfig = {
               type: 'group',
               label: 'Mercado Pago',
               admin: { readOnly: true },
+              access: systemOnly,
               fields: [
                 {
                   type: 'row',
@@ -332,9 +353,9 @@ export const Orders: CollectionConfig = {
               type: 'row',
               fields: [
                 { name: 'paidAt', type: 'date', label: 'Pagado', admin: ro },
-                { name: 'reservationExpiresAt', type: 'date', label: 'Reserva de stock vence', index: true, admin: ro },
-                { name: 'stockReleased', type: 'checkbox', label: 'Stock devuelto', defaultValue: false, admin: ro },
-                { name: 'couponReleased', type: 'checkbox', label: 'Uso de cupón devuelto', defaultValue: false, admin: ro },
+                { name: 'reservationExpiresAt', type: 'date', label: 'Reserva de stock vence', index: true, admin: ro, access: systemOnly },
+                { name: 'stockReleased', type: 'checkbox', label: 'Stock devuelto', defaultValue: false, admin: ro, access: systemOnly },
+                { name: 'couponReleased', type: 'checkbox', label: 'Uso de cupón devuelto', defaultValue: false, admin: ro, access: systemOnly },
               ],
             },
             {
@@ -348,7 +369,7 @@ export const Orders: CollectionConfig = {
                   fields: [
                     { name: 'number', type: 'text', label: 'Número' },
                     { name: 'cae', type: 'text', label: 'CAE' },
-                    { name: 'url', type: 'text', label: 'PDF (URL)' },
+                    { name: 'url', type: 'text', label: 'PDF (URL)', validate: httpUrl },
                   ],
                 },
               ],
@@ -363,6 +384,7 @@ export const Orders: CollectionConfig = {
               type: 'array',
               label: 'Cambios de estado',
               admin: { readOnly: true },
+              access: staffOnlyRead,
               fields: [
                 {
                   type: 'row',

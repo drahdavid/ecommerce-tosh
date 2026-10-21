@@ -1,5 +1,5 @@
 import type { Endpoint, PayloadRequest } from 'payload'
-import { isStaffUser } from '@/access'
+import { isAdminUser, isStaffUser } from '@/access'
 import { refundOrder } from '@/lib/payments/mercadopago/refund'
 import { packCart } from '@/lib/shipping/packaging'
 import { createShipmentForOrder } from '@/lib/shipping/registry'
@@ -7,8 +7,8 @@ import { toCents } from '@/lib/money'
 
 const fail = (message: string, status = 400) => Response.json({ error: message }, { status })
 
-const loadOrder = async (req: PayloadRequest) => {
-  if (!isStaffUser(req)) return { error: fail('No autorizado', 401) }
+const loadOrder = async (req: PayloadRequest, allowed: (req: PayloadRequest) => boolean = isStaffUser) => {
+  if (!allowed(req)) return { error: fail('No autorizado', 401) }
   const id = req.routeParams?.id as string
   const order = await req.payload.findByID({ collection: 'orders', id, depth: 0, overrideAccess: true }).catch(() => null)
   if (!order) return { error: fail('Pedido no encontrado', 404) }
@@ -20,7 +20,8 @@ export const orderEndpoints: Endpoint[] = [
     path: '/:id/refund',
     method: 'post',
     handler: async (req) => {
-      const { order, error } = await loadOrder(req)
+      // Mueve dinero: solo administradores.
+      const { order, error } = await loadOrder(req, isAdminUser)
       if (error) return error
       try {
         const updated = await refundOrder(req.payload, order, req.user?.email ?? 'admin')

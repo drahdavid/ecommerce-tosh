@@ -14,9 +14,20 @@ const remotePatterns = [process.env.NEXT_PUBLIC_SERVER_URL, process.env.NEXT_PUB
     return { protocol: url.protocol.replace(':', '') as 'http' | 'https', hostname: url.hostname, port: url.port, pathname: '/**' }
   })
 
+/** Headers de seguridad para todo el sitio (tienda y admin). CSP queda pendiente: GA, Meta, MP y scripts inline. */
+const securityHeaders = [
+  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+]
+
 const nextConfig: NextConfig = {
   // Imagen Docker mínima (servidor propio). Vercel ignora esta opción.
   output: 'standalone',
+  poweredByHeader: false,
+  headers: async () => [{ source: '/:path*', headers: securityHeaders }],
   images: {
     localPatterns: [{ pathname: '/api/media/file/**' }, { pathname: '/logo.png', search: '' }],
     remotePatterns,
