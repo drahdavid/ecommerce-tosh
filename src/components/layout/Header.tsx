@@ -26,6 +26,17 @@ const SearchForm = ({ id, className }: { id: string; className?: string }) => (
   </form>
 )
 
+// Nombre apilado en dos renglones, estilo Mercado Libre: primera palabra arriba, el resto abajo.
+const StoreWordmark = ({ name }: { name: string }) => {
+  const [first, ...rest] = name.trim().split(/\s+/)
+  return (
+    <span className="flex flex-col text-base leading-[0.95] font-extrabold tracking-tight sm:text-lg">
+      <span>{first}</span>
+      {rest.length > 0 && <span>{rest.join(' ')}</span>}
+    </span>
+  )
+}
+
 export const Header = ({ storeName, categories, whatsappNumber }: { storeName: string; categories: Category[]; whatsappNumber?: string | null }) => {
   // Solo lo que usan los componentes cliente: no serializar la categoría entera.
   const topLevel = categories.filter((c) => !c.parent).map((c) => ({ id: c.id, slug: c.slug, title: c.title }))
@@ -38,8 +49,7 @@ export const Header = ({ storeName, categories, whatsappNumber }: { storeName: s
           <MobileMenu categories={topLevel} storeName={storeName} whatsappNumber={whatsappNumber} />
           <Link href="/" className="flex shrink-0 items-center gap-2">
             <Image src={LOGO.src} alt="" width={logoWidth(36)} height={36} priority className="shrink-0" />
-            {/* En mobile no entra en una línea junto a los íconos: se parte en dos, más chico. */}
-            <span className="text-base leading-tight font-extrabold tracking-tight sm:text-xl">{storeName}</span>
+            <StoreWordmark name={storeName} />
           </Link>
           {/* Centrado entre el logo y los íconos, como en las tiendas grandes. */}
           <SearchForm id="header-search" className="mx-auto hidden max-w-2xl flex-1 md:flex" />

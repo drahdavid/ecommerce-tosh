@@ -18,7 +18,7 @@ export const StoreSettings: GlobalConfig = {
             {
               type: 'row',
               fields: [
-                { name: 'storeName', type: 'text', label: 'Nombre de la tienda', required: true, defaultValue: 'Tosh' },
+                { name: 'storeName', type: 'text', label: 'Nombre de la tienda', required: true, defaultValue: 'Servicio Técnico' },
                 { name: 'tagline', type: 'text', label: 'Bajada' },
               ],
             },

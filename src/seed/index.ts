@@ -186,7 +186,7 @@ const run = async () => {
   await payload.updateGlobal({
     slug: 'store-settings',
     data: {
-      storeName: 'Tosh',
+      storeName: 'Servicio Técnico',
       tagline: 'Indumentaria, tecnología y hogar',
       legalName: 'Tosh S.R.L. (ejemplo)',
       cuit: '30-00000000-0',
